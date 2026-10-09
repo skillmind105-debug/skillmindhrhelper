@@ -17,6 +17,10 @@ def mask_pii(text: str) -> str:
     masked = re.sub(URL_PATTERN, '[REDACTED_LINK]', masked)
     return masked
 
+def _build_skill_regex(skill: str) -> str:
+    tokens = [re.escape(tok) for tok in skill.strip().lower().split()]
+    return r'\b' + r'\s+'.join(tokens) + r'\b'
+
 def extract_evidence_snippets(resume_text: str, skill: str) -> List[str]:
     """
     İnteqrasiyalı Sübut Mexanizmi:
@@ -24,7 +28,7 @@ def extract_evidence_snippets(resume_text: str, skill: str) -> List[str]:
     konkret cümləni (evidence span) çıxarır.
     """
     sentences = re.split(r'(?<=[.!?\n])\s+', resume_text)
-    pattern = r'\b' + re.escape(skill) + r'\b'
+    pattern = _build_skill_regex(skill)
     evidences = []
     
     for sent in sentences:
@@ -33,6 +37,11 @@ def extract_evidence_snippets(resume_text: str, skill: str) -> List[str]:
             continue
         if re.search(pattern, sent_clean, re.IGNORECASE):
             evidences.append(sent_clean)
+            
+    if not evidences:
+        # Fallback for multi-line sentence structures
+        if re.search(pattern, resume_text, re.IGNORECASE):
+            evidences.append(f"Found in text: {skill}")
             
     return evidences
 
@@ -70,9 +79,9 @@ def analyze_candidate_skills(
     
     for raw_skill in required_skills:
         skill = raw_skill.strip().lower()
-        skill_regex = r'\b' + re.escape(skill) + r'\b'
+        skill_regex = _build_skill_regex(skill)
         
-        # Mətn daxilində axtarış
+        # Mətn daxilində axtarış (sətir qırılmaları daxil)
         if re.search(skill_regex, text_lower):
             # İnkar blokundadırmı?
             if re.search(skill_regex, negated_combined):

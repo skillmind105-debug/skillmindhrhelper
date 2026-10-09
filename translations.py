@@ -98,7 +98,12 @@ TRANSLATIONS = {
         "ml_model_label": "ML Model Arxitekturası",
         "model_core_name": "TalentProof Core",
         "model_v3_name": "TalentProof Advanced (Yüksək Dəqiqlik)",
-        "model_selector_help": "Model seçimi: TalentProof Core və ya TalentProof Advanced (Yüksək Dəqiqlik)."
+        "model_selector_help": "Model seçimi: TalentProof Core və ya TalentProof Advanced (Yüksək Dəqiqlik).",
+        "btn_delete_cand": "Namizədi Sil",
+        "confirm_delete_q": "Namizədi silməyə əminsiniz?",
+        "btn_confirm_yes": "Bəli, Sil",
+        "btn_confirm_no": "Ləğv Et",
+        "cand_deleted_msg": "Namizəd uğurla silindi."
     },
     "EN": {
         "page_title": "TalentProof AI — Enterprise Screening Intelligence",
@@ -199,7 +204,12 @@ TRANSLATIONS = {
         "ml_model_label": "ML Model Architecture",
         "model_core_name": "TalentProof Core",
         "model_v3_name": "TalentProof Advanced (High Accuracy)",
-        "model_selector_help": "Model Selection: TalentProof Core or TalentProof Advanced (High Accuracy)."
+        "model_selector_help": "Model Selection: TalentProof Core or TalentProof Advanced (High Accuracy).",
+        "btn_delete_cand": "Delete Candidate",
+        "confirm_delete_q": "Are you sure you want to delete this candidate?",
+        "btn_confirm_yes": "Yes, Delete",
+        "btn_confirm_no": "Cancel",
+        "cand_deleted_msg": "Candidate deleted successfully."
     },
     "RU": {
         "page_title": "TalentProof AI — Корпоративный скрининг кандидатов",
@@ -300,6 +310,11 @@ TRANSLATIONS = {
         "ml_model_label": "Архитектура ML-модели",
         "model_core_name": "TalentProof Core",
         "model_v3_name": "TalentProof Advanced (Высокая точность)",
-        "model_selector_help": "Выбор модели: TalentProof Core или TalentProof Advanced (Высокая точность)."
+        "model_selector_help": "Выбор модели: TalentProof Core или TalentProof Advanced (Высокая точность).",
+        "btn_delete_cand": "Удалить кандидата",
+        "confirm_delete_q": "Вы уверены, что хотите удалить этого кандидата?",
+        "btn_confirm_yes": "Да, удалить",
+        "btn_confirm_no": "Отмена",
+        "cand_deleted_msg": "Кандидат успешно удален."
     }
 }

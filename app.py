@@ -105,6 +105,24 @@ ENTERPRISE_CSS = """
         border-radius: 4px;
         padding: 16px 20px;
         margin-bottom: 14px;
+        position: relative;
+    }
+    .candidate-card:hover .cand-delete-trigger {
+        opacity: 1 !important;
+    }
+    .cand-delete-btn {
+        background: transparent;
+        border: none;
+        color: #94a3b8;
+        font-size: 15px;
+        cursor: pointer;
+        padding: 2px 6px;
+        border-radius: 4px;
+        transition: all 0.15s ease;
+    }
+    .cand-delete-btn:hover {
+        color: #e11d48;
+        background-color: #ffe4e6;
     }
     
     /* Professional Status Badges */
@@ -621,22 +639,60 @@ with tab_matrix:
     st.markdown("---")
     st.markdown(f"#### {t['ranked_assessment']}")
     
+    if st.session_state.get("cand_del_success"):
+        st.success(st.session_state.pop("cand_del_success"))
+    
     for rank_idx, r in enumerate(eval_results):
         status_label = t["status_qualified"] if r["passed"] else t["status_disqualified"]
         status_class = "badge-status-pass" if r["passed"] else "badge-status-fail"
         status_html = f'<span class="{status_class}">{status_label} ({r["score_pct"]}%)</span>'
         
         with st.container():
-            st.markdown(f"""
-            <div class="candidate-card">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                    <div>
-                        <span style="font-size: 15px; font-weight: 700; color: #0f172a;">{r['display_name']}</span>
-                        <span style="font-size: 12px; color: #64748b; margin-left: 8px;">&bull; {r['role']}</span>
-                    </div>
-                    <div>{status_html}</div>
+            st.markdown('<div class="candidate-card">', unsafe_allow_html=True)
+            
+            # Header Row with Candidate Name, Status and Hover Delete Button
+            top_c1, top_c2, top_c3 = st.columns([7.8, 1.8, 0.4])
+            with top_c1:
+                st.markdown(f"""
+                <div>
+                    <span style="font-size: 15px; font-weight: 700; color: #0f172a;">{r['display_name']}</span>
+                    <span style="font-size: 12px; color: #64748b; margin-left: 8px;">&bull; {r['role']}</span>
                 </div>
-                <div style="display: flex; gap: 28px; font-size: 12px; color: #475569; margin-bottom: 14px;">
+                """, unsafe_allow_html=True)
+            with top_c2:
+                st.markdown(f'<div style="text-align: right;">{status_html}</div>', unsafe_allow_html=True)
+            with top_c3:
+                # Hover delete trigger button
+                st.markdown(f'<div class="cand-delete-trigger" style="opacity: 0.15; transition: opacity 0.2s; text-align: right;">', unsafe_allow_html=True)
+                if st.button("✕", key=f"del_cand_btn_{r['id']}", help=t.get("btn_delete_cand", "Namizədi Sil")):
+                    st.session_state[f"confirm_delete_{r['id']}"] = True
+                    st.rerun()
+                st.markdown('</div>', unsafe_allow_html=True)
+            
+            # Confirmation banner if delete clicked
+            if st.session_state.get(f"confirm_delete_{r['id']}", False):
+                st.markdown(f"""
+                <div style="background-color: #fff1f2; border: 1px solid #fecdd3; border-radius: 4px; padding: 10px 14px; margin: 8px 0 14px 0; display: flex; align-items: center; justify-content: space-between;">
+                    <span style="color: #9f1239; font-weight: 600; font-size: 13px;">{t['confirm_delete_q']} ({r['display_name']})</span>
+                </div>
+                """, unsafe_allow_html=True)
+                conf_c1, conf_c2, conf_c3 = st.columns([2, 2, 6])
+                with conf_c1:
+                    if st.button(t['btn_confirm_yes'], key=f"yes_del_{r['id']}", use_container_width=True):
+                        all_c = load_candidates()
+                        all_c = [c for c in all_c if c.get("id") != r["id"]]
+                        save_candidates(all_c)
+                        st.session_state.candidates = all_c
+                        st.session_state[f"confirm_delete_{r['id']}"] = False
+                        st.session_state["cand_del_success"] = t.get("cand_deleted_msg", "Namizəd uğurla silindi.")
+                        st.rerun()
+                with conf_c2:
+                    if st.button(t['btn_confirm_no'], key=f"no_del_{r['id']}", use_container_width=True):
+                        st.session_state[f"confirm_delete_{r['id']}"] = False
+                        st.rerun()
+
+            st.markdown(f"""
+                <div style="display: flex; gap: 28px; font-size: 12px; color: #475569; margin: 10px 0 14px 0;">
                     <span><strong>{t['exp_label']}:</strong> {r['exp_years']} {t['years']} ({t['req_label']}: {required_exp_input} {t['years']})</span>
                     <span><strong>{t['comp_match']}:</strong> {int(r['skill_ratio']*100)}%</span>
                     <span><strong>{t['sem_align']}:</strong> {int(r['semantic_sim']*100)}%</span>
