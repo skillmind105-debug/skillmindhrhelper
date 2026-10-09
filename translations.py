@@ -67,7 +67,8 @@ TRANSLATIONS = {
         "add_skill_placeholder": "Yeni bacarıq yazın (məs: Docker, Git, PyTorch)",
         "btn_add_skill": "Əlavə Et",
         "skill_already_exists": "Bu bacarıq artıq siyahıda mövcuddur.",
-        "skill_added": "Bacarıq uğurla əlavə edildi."
+        "skill_added": "Bacarıq uğurla əlavə edildi.",
+        "cand_already_exists": "Bu namizəd artıq sistemdə mövcuddur! Eyni CV təkrar əlavə edilmədi."
     },
     "EN": {
         "page_title": "TalentProof AI — Enterprise Screening Intelligence",
@@ -137,7 +138,8 @@ TRANSLATIONS = {
         "add_skill_placeholder": "Enter custom skill (e.g. Docker, Git, PyTorch)",
         "btn_add_skill": "Add Skill",
         "skill_already_exists": "Skill already exists in the profile.",
-        "skill_added": "Skill added successfully."
+        "skill_added": "Skill added successfully.",
+        "cand_already_exists": "This candidate already exists in the system! Duplicate CV not added."
     },
     "RU": {
         "page_title": "TalentProof AI — Корпоративный скрининг кандидатов",
@@ -207,6 +209,7 @@ TRANSLATIONS = {
         "add_skill_placeholder": "Введите навык (напр. Docker, Git, PyTorch)",
         "btn_add_skill": "Добавить",
         "skill_already_exists": "Этот навык уже присутствует в списке.",
-        "skill_added": "Навык успешно добавлен."
+        "skill_added": "Навык успешно добавлен.",
+        "cand_already_exists": "Этот кандидат уже существует в системе! Повторное резюме не добавлено."
     }
 }
