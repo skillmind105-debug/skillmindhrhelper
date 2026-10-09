@@ -202,26 +202,33 @@ ENTERPRISE_CSS = """
     }
 
     /* Skill row with hover-reveal transparent delete 'x' */
-    div[data-testid="stHorizontalBlock"]:has(.delete-skill-btn) .delete-skill-btn button {
+    div.st-key-del_sk_ button,
+    div[class*="st-key-del_sk_"] button {
         opacity: 0 !important;
+        background-color: transparent !important;
         background: transparent !important;
         border: none !important;
+        outline: none !important;
         box-shadow: none !important;
         color: #94a3b8 !important;
         padding: 0 !important;
-        font-size: 13px !important;
+        margin: 0 !important;
+        font-size: 11px !important;
         font-weight: 700 !important;
         line-height: 1 !important;
-        min-height: 24px !important;
-        height: 24px !important;
+        min-height: 20px !important;
+        height: 20px !important;
+        width: 20px !important;
+        min-width: 20px !important;
         transition: opacity 0.15s ease, color 0.15s ease !important;
     }
-    div[data-testid="stHorizontalBlock"]:has(.delete-skill-btn):hover .delete-skill-btn button {
-        opacity: 0.8 !important;
+    div[data-testid="stHorizontalBlock"]:hover div[class*="st-key-del_sk_"] button {
+        opacity: 0.7 !important;
     }
-    div[data-testid="stHorizontalBlock"]:has(.delete-skill-btn) .delete-skill-btn button:hover {
+    div[class*="st-key-del_sk_"] button:hover {
         opacity: 1 !important;
         color: #e11d48 !important;
+        background: transparent !important;
     }
 </style>
 """
@@ -356,16 +363,14 @@ with st.sidebar:
         col_target = skill_cols[idx % 2]
         is_checked = sk in st.session_state.active_skills_set
         with col_target:
-            row_c1, row_c2 = st.columns([5, 1])
+            row_c1, row_c2 = st.columns([4, 1.2])
             with row_c1:
                 if st.checkbox(sk.upper(), value=is_checked, key=f"pill_skill_{sk}"):
                     st.session_state.active_skills_set.add(sk)
                 else:
                     st.session_state.active_skills_set.discard(sk)
             with row_c2:
-                st.markdown('<div class="delete-skill-btn">', unsafe_allow_html=True)
-                st.button("✕", key=f"del_sk_{sk}", on_click=remove_skill_callback, args=(sk,), help=f"{sk.upper()} bacarığını sil")
-                st.markdown('</div>', unsafe_allow_html=True)
+                st.button("✕", key=f"del_sk_{sk}", on_click=remove_skill_callback, args=(sk,), help=f"{sk.upper()} sil")
 
     active_skills = [s for s in st.session_state.available_skills if s in st.session_state.active_skills_set]
             
