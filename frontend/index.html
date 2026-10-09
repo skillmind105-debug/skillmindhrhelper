@@ -10,29 +10,26 @@
 <body class="bg-slate-50 text-slate-900 min-h-screen flex flex-col">
 
   <!-- Header -->
-  <header class="header-enterprise px-6 py-4 flex flex-wrap items-center justify-between gap-4">
-    <div class="flex items-center space-x-3">
-      <div class="h-8 w-8 bg-slate-800 border border-slate-700 flex items-center justify-center font-bold text-white text-sm">
-        TP
+  <header class="bg-slate-900 border-b border-slate-800 text-white px-6 py-4">
+    <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-4">
+      <div class="flex-1 min-w-[280px]">
+        <h1 class="text-base md:text-lg font-bold tracking-tight text-white uppercase" data-i18n="header_title">TALENTPROOF AI — Namizədlərin Qiymətləndirilməsi</h1>
+        <p class="text-xs text-slate-400 mt-0.5" data-i18n="header_subtitle">Sübut Əsaslı, Məxfiliyi Qoruyan (On-Premise) ML İşə Qəbul Sistemi</p>
       </div>
-      <div>
-        <h1 class="text-base font-bold tracking-tight uppercase" data-i18n="header_title">TALENTPROOF AI</h1>
-        <p class="text-xs text-slate-400" data-i18n="header_subtitle">Sübut Əsaslı, Məxfiliyi Qoruyan (On-Premise) ML İşə Qəbul Sistemi</p>
-      </div>
-    </div>
 
-    <div class="flex items-center space-x-4">
-      <span id="backend-status-pill" class="badge-neutral text-xs font-mono whitespace-nowrap flex-shrink-0">
-        LOKAL İNFERENSİYA • 0 XARİCİ SORĞU
-      </span>
+      <div class="flex items-center space-x-3 flex-shrink-0">
+        <span id="backend-status-pill" class="bg-slate-800 text-slate-300 border border-slate-700 text-xs font-semibold px-3 py-1.5 rounded whitespace-nowrap flex-shrink-0 tracking-wider">
+          LOKAL İNFERENSİYA • 0 XARİCİ SORĞU
+        </span>
 
-      <!-- Language Switcher: Pure text, strictly NO flag emojis -->
-      <div class="relative inline-block text-left">
-        <select id="lang-select" class="bg-slate-800 text-white border border-slate-700 text-xs py-1.5 px-3 rounded font-medium focus:ring-0">
-          <option value="AZ">AZ</option>
-          <option value="EN">EN</option>
-          <option value="RU">RU</option>
-        </select>
+        <!-- Language Switcher: Pure text, strictly NO flag emojis -->
+        <div class="relative inline-block text-left">
+          <select id="lang-select" class="bg-slate-800 text-white border border-slate-700 text-xs py-1.5 px-3 rounded font-medium focus:ring-0">
+            <option value="AZ">AZ</option>
+            <option value="EN">EN</option>
+            <option value="RU">RU</option>
+          </select>
+        </div>
       </div>
     </div>
   </header>

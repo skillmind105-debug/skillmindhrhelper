@@ -206,12 +206,12 @@ async function checkBackendHealth() {
     const res = await fetch(`${API_BASE}/`, { method: "GET" });
     if (res.ok) {
       pill.textContent = `${t("local_badge")} • ${t("server_status_online")}`;
-      pill.className = "badge-qualified text-xs font-mono";
+      pill.className = "bg-emerald-950 text-emerald-300 border border-emerald-800 text-xs font-semibold px-3 py-1.5 rounded whitespace-nowrap flex-shrink-0 tracking-wider";
       return true;
     }
   } catch (err) {
-    pill.textContent = `${t("local_badge")} • ${t("server_status_offline")}`;
-    pill.className = "badge-neutral text-xs font-mono";
+    pill.textContent = `${t("local_badge")}`;
+    pill.className = "bg-slate-800 text-slate-300 border border-slate-700 text-xs font-semibold px-3 py-1.5 rounded whitespace-nowrap flex-shrink-0 tracking-wider";
   }
   return false;
 }

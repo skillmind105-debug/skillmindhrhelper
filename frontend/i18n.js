@@ -1,7 +1,7 @@
 const TRANSLATIONS = {
     "AZ": {
         "page_title": "TalentProof AI — Namizədlərin Qiymətləndirilməsi",
-        "header_title": "TALENTPROOF AI",
+        "header_title": "TALENTPROOF AI — Namizədlərin Qiymətləndirilməsi",
         "header_subtitle": "Sübut Əsaslı, Məxfiliyi Qoruyan (On-Premise) ML İşə Qəbul Sistemi",
         "local_badge": "LOKAL İNFERENSİYA • 0 XARİCİ SORĞU",
         "cia_title": "CIA Triadası və Təhlükəsizlik Auditi Statusu",
