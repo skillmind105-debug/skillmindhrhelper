@@ -277,26 +277,26 @@ with st.sidebar:
     default_skills = ["python", "sql", "pandas", "numpy", "tableau", "power bi", "excel", "data visualization"]
     if "available_skills" not in st.session_state:
         st.session_state.available_skills = list(default_skills)
-    if "active_skills_multiselect" not in st.session_state:
-        st.session_state["active_skills_multiselect"] = list(default_skills)
-
     def add_custom_skill_callback():
         val = st.session_state.get("custom_skill_text_input", "").strip().lower()
         if val:
             if val not in st.session_state.available_skills:
                 st.session_state.available_skills.append(val)
-            current_selected = list(st.session_state.get("active_skills_multiselect", []))
-            if val not in current_selected:
-                current_selected.append(val)
-                st.session_state["active_skills_multiselect"] = current_selected
+            if "active_skills_set" not in st.session_state:
+                st.session_state.active_skills_set = set(default_skills)
+            st.session_state.active_skills_set.add(val)
             st.session_state["custom_skill_text_input"] = ""
 
-    # Clean custom skill input row
+    if "active_skills_set" not in st.session_state:
+        st.session_state.active_skills_set = set(default_skills)
+
+    # Clean input row with full width
+    st.markdown(f'<div style="font-size:12px; font-weight:600; color:#475569; margin-bottom:4px;">{t.get("add_skill_label", "YENİ BACARIQ ƏLAVƏ ET")}</div>', unsafe_allow_html=True)
     add_col1, add_col2 = st.columns([3, 1])
     with add_col1:
         st.text_input(
             label="New Skill Input",
-            placeholder=t.get("add_skill_placeholder", "Yeni bacarıq yazın (məs: Docker, Git, PyTorch)"),
+            placeholder=t.get("add_skill_placeholder", "Məs: Docker, Git, PyTorch..."),
             label_visibility="collapsed",
             key="custom_skill_text_input",
             on_change=add_custom_skill_callback
@@ -309,13 +309,21 @@ with st.sidebar:
             on_click=add_custom_skill_callback
         )
 
-    # Multiselect widget: compact, scrollable, enterprise-grade, fits all screens without vertical bloating
-    active_skills = st.multiselect(
-        label=t.get("active_skills_label", "Tələb Olunan Bacarıqlar"),
-        options=st.session_state.available_skills,
-        format_func=lambda x: x.upper(),
-        key="active_skills_multiselect"
-    )
+    # Clean Pill-based Skill Selector (Zero confusing search box, click to toggle on/off)
+    st.markdown(f'<div style="font-size:12px; font-weight:600; color:#475569; margin-top:12px; margin-bottom:6px;">{t.get("active_skills_label", "TƏLƏB OLUNAN BACARIQLAR")}</div>', unsafe_allow_html=True)
+    
+    # Render interactive skill toggles grid (2 columns)
+    skill_cols = st.columns(2)
+    for idx, sk in enumerate(st.session_state.available_skills):
+        col_target = skill_cols[idx % 2]
+        is_checked = sk in st.session_state.active_skills_set
+        with col_target:
+            if st.checkbox(sk.upper(), value=is_checked, key=f"pill_skill_{sk}"):
+                st.session_state.active_skills_set.add(sk)
+            else:
+                st.session_state.active_skills_set.discard(sk)
+
+    active_skills = [s for s in st.session_state.available_skills if s in st.session_state.active_skills_set]
             
     st.markdown("---")
     blind_screening_enabled = st.toggle(t['blind_screening'], value=True, help=t['blind_screening_help'])
