@@ -182,10 +182,10 @@ ENTERPRISE_CSS = """
     }
     button[data-baseweb="tab"][aria-selected="true"] {
         color: #0f172a !important;
-        border-bottom-color: #2563eb !important;
+        border-bottom-color: #cbd5e1 !important;
     }
     div[data-baseweb="tab-highlight"] {
-        background-color: #2563eb !important;
+        background-color: #cbd5e1 !important;
     }
 
     /* Force Dark High-Contrast Color on All Markdown and Headings */
