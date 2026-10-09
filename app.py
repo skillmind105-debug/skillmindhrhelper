@@ -700,31 +700,46 @@ with tab_upload:
     st.markdown(f"#### {t['ingest_title']}")
     st.caption(t['ingest_caption'])
     
-    uploaded_doc = st.file_uploader(t["resume_file"], type=["pdf", "txt"])
+    uploaded_doc = st.file_uploader(t["resume_file"], type=["pdf", "txt"], key="resume_file_uploader")
     
-    extracted = ""
-    pdf_bytes = None
-    if uploaded_doc is not None:
+    if "cv_extracted_text" not in st.session_state:
+        st.session_state.cv_extracted_text = "Data Analyst with 2 years experience in SQL and Python. Built predictive models."
+    if "cv_pdf_bytes" not in st.session_state:
+        st.session_state.cv_pdf_bytes = None
+    if "last_processed_file" not in st.session_state:
+        st.session_state.last_processed_file = None
+
+    if uploaded_doc is not None and st.session_state.last_processed_file != uploaded_doc.name:
+        st.session_state.last_processed_file = uploaded_doc.name
         if uploaded_doc.type == "application/pdf":
-            pdf_bytes = uploaded_doc.getvalue()
-            doc = pymupdf.open(stream=pdf_bytes, filetype="pdf")
+            st.session_state.cv_pdf_bytes = uploaded_doc.getvalue()
+            doc = pymupdf.open(stream=st.session_state.cv_pdf_bytes, filetype="pdf")
+            full_text = ""
             for page in doc:
-                extracted += page.get_text()
+                full_text += page.get_text() + "\n"
+            st.session_state.cv_extracted_text = full_text
             st.success(t["pdf_success"])
         else:
-            extracted = uploaded_doc.getvalue().decode("utf-8", errors="ignore")
+            st.session_state.cv_pdf_bytes = None
+            st.session_state.cv_extracted_text = uploaded_doc.getvalue().decode("utf-8", errors="ignore")
+        
+        # Calculate experience directly from uploaded text
+        st.session_state.detected_exp_val = float(estimate_experience_years(st.session_state.cv_extracted_text))
+
+    if "detected_exp_val" not in st.session_state:
+        st.session_state.detected_exp_val = float(estimate_experience_years(st.session_state.cv_extracted_text))
 
     col_u1, col_u2 = st.columns([1, 1])
     with col_u2:
         resume_text_area = st.text_area(
             t["resume_plaintext"], 
-            value=extracted if extracted else "Data Analyst with 2 years experience in SQL and Python. Built predictive models.",
-            height=180,
+            value=st.session_state.cv_extracted_text,
+            height=200,
             key="upload_resume_text_area"
         )
-
-    # Auto-calculate experience from CV text
-    detected_exp = estimate_experience_years(resume_text_area)
+        # Update text if user edits in textarea
+        if resume_text_area != st.session_state.cv_extracted_text:
+            st.session_state.cv_extracted_text = resume_text_area
 
     with col_u1:
         new_name = st.text_input(t["cand_ref_name"], value="Candidate #X")
@@ -732,7 +747,7 @@ with tab_upload:
             t["cand_exp"], 
             min_value=0.0, 
             max_value=25.0, 
-            value=float(detected_exp), 
+            value=st.session_state.detected_exp_val, 
             step=0.1,
             help="CV mətnindən avtomatik aşkarlanır və ya əllə tənzimlənə bilər."
         )
@@ -742,9 +757,9 @@ with tab_upload:
         existing_nums = [int(c["id"].split("-")[-1]) for c in cands if c.get("id", "").split("-")[-1].isdigit()]
         new_id = f"CAND-{(max(existing_nums) if existing_nums else 0) + 1:02d}"
         cv_pages = 0
-        if pdf_bytes:
+        if st.session_state.cv_pdf_bytes:
             try:
-                cv_pages = render_cv_images(pdf_bytes, new_id, new_name)
+                cv_pages = render_cv_images(st.session_state.cv_pdf_bytes, new_id, new_name)
             except Exception:
                 cv_pages = 0
         new_entry = {
