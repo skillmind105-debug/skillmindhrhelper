@@ -270,11 +270,38 @@ with st.sidebar:
     st.caption(t['what_if_caption'])
     
     default_skills = ["python", "sql", "pandas", "numpy", "tableau", "power bi", "excel", "data visualization"]
-    active_skills = []
-    
-    for s in default_skills:
-        if st.checkbox(s.upper(), value=True, key=f"skill_{s}"):
-            active_skills.append(s)
+    if "available_skills" not in st.session_state:
+        st.session_state.available_skills = list(default_skills)
+    if "selected_skills" not in st.session_state:
+        st.session_state.selected_skills = list(default_skills)
+
+    # Clean custom skill input row
+    add_col1, add_col2 = st.columns([3, 1])
+    with add_col1:
+        new_skill_input = st.text_input(
+            label="New Skill Input",
+            placeholder=t["add_skill_placeholder"],
+            label_visibility="collapsed",
+            key="custom_skill_text_input"
+        )
+    with add_col2:
+        if st.button(t["btn_add_skill"], use_container_width=True, key="btn_add_skill_action"):
+            cleaned_new_skill = new_skill_input.strip().lower()
+            if cleaned_new_skill:
+                if cleaned_new_skill not in st.session_state.available_skills:
+                    st.session_state.available_skills.append(cleaned_new_skill)
+                    st.session_state.selected_skills.append(cleaned_new_skill)
+                    st.rerun()
+
+    # Multiselect widget: compact, scrollable, enterprise-grade, fits all screens without vertical bloating
+    active_skills = st.multiselect(
+        label=t["active_skills_label"],
+        options=st.session_state.available_skills,
+        default=st.session_state.selected_skills,
+        format_func=lambda x: x.upper(),
+        key="active_skills_multiselect"
+    )
+    st.session_state.selected_skills = active_skills
             
     st.markdown("---")
     blind_screening_enabled = st.toggle(t['blind_screening'], value=True, help=t['blind_screening_help'])
