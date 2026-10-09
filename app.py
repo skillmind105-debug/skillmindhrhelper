@@ -49,10 +49,15 @@ ENTERPRISE_CSS = """
         background-color: #f8fafc;
     }
 
-    /* Remove excessive default Streamlit top and bottom spacing */
+    /* Ensure content is positioned properly below Streamlit top header bar */
+    header[data-testid="stHeader"] {
+        background-color: transparent !important;
+        z-index: 1;
+    }
+
     .block-container {
-        padding-top: 1.2rem !important;
-        padding-bottom: 1.5rem !important;
+        padding-top: 3.5rem !important;
+        padding-bottom: 2rem !important;
         padding-left: 2.5rem !important;
         padding-right: 2.5rem !important;
         max-width: 1450px !important;
