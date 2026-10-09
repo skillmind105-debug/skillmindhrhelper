@@ -48,7 +48,7 @@ ENTERPRISE_CSS = """
         padding: 16px 24px;
         border-radius: 4px;
         margin-bottom: 16px;
-        border-left: 4px solid #2563eb;
+        border: 1px solid #1e293b;
     }
     .enterprise-header-title {
         font-size: 19px;
@@ -202,7 +202,7 @@ st.markdown(ENTERPRISE_CSS, unsafe_allow_html=True)
 # ==========================================
 # 3. TOP NAVIGATION & PROFESSIONAL LANGUAGE SWITCHER
 # ==========================================
-header_col1, header_col2 = st.columns([8, 2])
+header_col1, header_col2 = st.columns([8.8, 1.2])
 
 with header_col2:
     selected_lang = st.selectbox(
@@ -222,13 +222,13 @@ t = TRANSLATIONS[st.session_state.current_lang]
 with header_col1:
     st.markdown(f"""
     <div class="enterprise-header">
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-            <div>
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px;">
+            <div style="flex: 1 1 300px; min-width: 0;">
                 <div class="enterprise-header-title">{t['header_title']}</div>
                 <div class="enterprise-header-subtitle">{t['header_subtitle']}</div>
             </div>
-            <div>
-                <span style="background-color: #1e293b; color: #94a3b8; padding: 4px 10px; border-radius: 3px; font-size: 11px; font-weight: 600; border: 1px solid #334155;">
+            <div style="flex-shrink: 0;">
+                <span style="background-color: #1e293b; color: #94a3b8; padding: 6px 12px; border-radius: 3px; font-size: 11px; font-weight: 600; border: 1px solid #334155; white-space: nowrap; display: inline-block; letter-spacing: 0.3px;">
                     {t['local_badge']}
                 </span>
             </div>
