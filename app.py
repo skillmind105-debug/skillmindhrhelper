@@ -359,8 +359,27 @@ default_candidates = [
     }
 ]
 
-if "candidates" not in st.session_state:
-    st.session_state.candidates = default_candidates
+import json
+CANDIDATE_STORE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "candidates_store.json")
+
+def load_candidates():
+    """Local on-premise store: shared by all browser sessions (localhost + network)."""
+    if os.path.exists(CANDIDATE_STORE):
+        try:
+            with open(CANDIDATE_STORE, "r", encoding="utf-8") as f:
+                data = json.load(f)
+            if isinstance(data, list) and data:
+                return data
+        except Exception:
+            pass
+    return [dict(c) for c in default_candidates]
+
+def save_candidates(cands):
+    with open(CANDIDATE_STORE, "w", encoding="utf-8") as f:
+        json.dump(cands, f, ensure_ascii=False, indent=2)
+
+# Always read fresh from disk so every session sees the same repository
+st.session_state.candidates = load_candidates()
 
 # ==========================================
 # 7. EVALUATION PIPELINE
@@ -549,16 +568,22 @@ with tab_upload:
         )
         
     if st.button(t["btn_ingest"]):
+        cands = load_candidates()
+        existing_nums = [int(c["id"].split("-")[-1]) for c in cands if c.get("id", "").split("-")[-1].isdigit()]
         new_entry = {
-            "id": f"CAND-{len(st.session_state.candidates)+1:02d}",
+            "id": f"CAND-{(max(existing_nums) if existing_nums else 0) + 1:02d}",
             "name": new_name,
             "role": "Uploaded Applicant",
             "exp_years": new_exp,
             "resume_text": resume_text_area
         }
-        st.session_state.candidates.append(new_entry)
-        st.success(f"{new_name} {t['ingest_success']}")
+        cands.append(new_entry)
+        save_candidates(cands)
+        st.session_state["last_ingested"] = f"{new_name} ({new_entry['id']}) {t['ingest_success']}"
         st.rerun()
+
+    if st.session_state.get("last_ingested"):
+        st.success(st.session_state.pop("last_ingested"))
 
 # ----------------- TAB 3: BENCHMARK -----------------
 with tab_benchmark:
