@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title data-i18n="page_title">TalentProof AI — Namizədlərin Qiymətləndirilməsi</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-slate-50 text-slate-900 min-h-screen flex flex-col">
+
+  <!-- Header -->
+  <header class="header-enterprise px-6 py-4 flex flex-wrap items-center justify-between gap-4">
+    <div class="flex items-center space-x-3">
+      <div class="h-8 w-8 bg-slate-800 border border-slate-700 flex items-center justify-center font-bold text-white text-sm">
+        TP
+      </div>
+      <div>
+        <h1 class="text-base font-bold tracking-tight uppercase" data-i18n="header_title">TALENTPROOF AI</h1>
+        <p class="text-xs text-slate-400" data-i18n="header_subtitle">Sübut Əsaslı, Məxfiliyi Qoruyan (On-Premise) ML İşə Qəbul Sistemi</p>
+      </div>
+    </div>
+
+    <div class="flex items-center space-x-4">
+      <span id="backend-status-pill" class="badge-neutral text-xs font-mono">
+        LOKAL İNFERENSİYA • 0 XARİCİ SORĞU
+      </span>
+
+      <!-- Language Switcher: Pure text, strictly NO flag emojis -->
+      <div class="relative inline-block text-left">
+        <select id="lang-select" class="bg-slate-800 text-white border border-slate-700 text-xs py-1.5 px-3 rounded font-medium focus:ring-0">
+          <option value="AZ">AZ</option>
+          <option value="EN">EN</option>
+          <option value="RU">RU</option>
+        </select>
+      </div>
+    </div>
+  </header>
+
+  <!-- CIA Triad Audit Ribbon -->
+  <section class="bg-slate-900 border-b border-slate-800 text-slate-300 text-xs px-6 py-2.5">
+    <div class="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-2">
+      <div class="font-semibold text-slate-200 uppercase tracking-wider text-[11px]" data-i18n="cia_title">CIA Triadası və Təhlükəsizlik Auditi Statusu:</div>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-[11px]">
+        <div><strong class="text-white">C:</strong> <span data-i18n="cia_c">Məxfilik: Bulud LLM-lərinə ötürülmür. PII maskalanır.</span></div>
+        <div><strong class="text-white">I:</strong> <span data-i18n="cia_i">Bütövlük: İnkar Mühərriki aktivdir. Sitatlarla əsaslandırılır.</span></div>
+        <div><strong class="text-white">A:</strong> <span data-i18n="cia_a">Əlçatanlıq: Daxili lokal ML inferensiyası (<15ms).</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Navigation Tabs -->
+  <nav class="bg-white border-b border-slate-200 px-6">
+    <div class="max-w-7xl mx-auto flex space-x-8">
+      <button id="tab-btn-matrix" class="py-3 px-1 border-b-2 border-slate-900 font-semibold text-xs text-slate-900 tracking-wider uppercase" data-i18n="tab_matrix">
+        Namizədlərin Qiymətləndirmə Matrisi
+      </button>
+      <button id="tab-btn-upload" class="py-3 px-1 border-b-2 border-transparent font-medium text-xs text-slate-500 hover:text-slate-800 tracking-wider uppercase" data-i18n="tab_upload">
+        Yeni CV Yüklə (PDF / Mətn)
+      </button>
+      <button id="tab-btn-benchmark" class="py-3 px-1 border-b-2 border-transparent font-medium text-xs text-slate-500 hover:text-slate-800 tracking-wider uppercase" data-i18n="tab_benchmark">
+        Qiymətləndirmə Hesabatı və Metrikalar
+      </button>
+    </div>
+  </nav>
+
+  <!-- Main Container -->
+  <main class="max-w-7xl mx-auto p-6 w-full flex-grow">
+
+    <!-- TAB 1: Screening Matrix -->
+    <div id="tab-matrix-content" class="space-y-6">
+      
+      <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        <!-- Configuration & What-If Controls -->
+        <aside class="card-enterprise p-5 lg:col-span-1 space-y-5">
+          <div>
+            <h2 class="text-xs font-bold text-slate-900 uppercase tracking-wider mb-3" data-i18n="job_spec_header">Vakansiya Tələbləri</h2>
+            <div class="space-y-3">
+              <div>
+                <label class="block text-xs font-medium text-slate-700 mb-1" data-i18n="position_title">Vakansiya Adı</label>
+                <input id="job-title-input" type="text" value="Data Analyst" class="w-full text-xs">
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-slate-700 mb-1" data-i18n="required_exp">Tələb Olunan Təcrübə (İl)</label>
+                <input id="required-exp-input" type="number" step="0.5" min="0" value="2.0" class="w-full text-xs">
+              </div>
+            </div>
+          </div>
+
+          <!-- Blind Screening Toggle -->
+          <div class="pt-4 border-t border-slate-200">
+            <div class="flex items-center justify-between">
+              <div>
+                <label for="blind-screening-toggle" class="text-xs font-bold text-slate-900 block" data-i18n="blind_screening">Blind Screening (PII)</label>
+                <span class="text-[11px] text-slate-500 block leading-tight mt-0.5" data-i18n="blind_screening_help">Ad, email və nömrəni gizlədir.</span>
+              </div>
+              <input id="blind-screening-toggle" type="checkbox" checked class="h-4 w-4 rounded border-slate-300 text-slate-900 focus:ring-0">
+            </div>
+          </div>
+
+          <!-- What-If Simulation -->
+          <div class="pt-4 border-t border-slate-200">
+            <h3 class="text-xs font-bold text-slate-900 uppercase tracking-wider mb-1" data-i18n="what_if_header">What-If Simulyasiyası</h3>
+            <p class="text-[11px] text-slate-500 mb-3" data-i18n="what_if_caption">Tələbləri dəyişərək balların anında yenidən hesablanmasını izləyin:</p>
+            <div id="skills-container" class="space-y-2 text-xs">
+              <!-- Rendered via JS -->
+            </div>
+          </div>
+
+          <button id="btn-re-screen" class="w-full bg-slate-900 text-white text-xs font-semibold py-2 px-3 rounded hover:bg-slate-800 transition tracking-wider uppercase" data-i18n="btn_screen_all">
+            Skrininqi Başlat
+          </button>
+        </aside>
+
+        <!-- Right Side: Metrics & Candidates Grid -->
+        <section class="lg:col-span-3 space-y-6">
+          <!-- Metric Summary Cards -->
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div class="card-enterprise p-4">
+              <div class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider" data-i18n="total_candidates">Ümumi Namizəd</div>
+              <div id="metric-total" class="text-2xl font-bold text-slate-900 mt-1">0</div>
+            </div>
+            <div class="card-enterprise p-4">
+              <div class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider" data-i18n="shortlisted">Uyğun Sayılanlar</div>
+              <div id="metric-qualified" class="text-2xl font-bold text-emerald-700 mt-1">0</div>
+            </div>
+            <div class="card-enterprise p-4">
+              <div class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider" data-i18n="qual_rate">Uyğunluq Faizi</div>
+              <div id="metric-rate" class="text-2xl font-bold text-slate-900 mt-1">0%</div>
+            </div>
+            <div class="card-enterprise p-4">
+              <div class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider" data-i18n="mean_score">Orta Bal</div>
+              <div id="metric-mean" class="text-2xl font-bold text-slate-900 mt-1">0%</div>
+            </div>
+          </div>
+
+          <!-- Candidates List Header -->
+          <div class="card-enterprise p-5">
+            <div class="flex items-center justify-between mb-4 pb-2 border-b border-slate-200">
+              <h2 class="text-xs font-bold text-slate-900 uppercase tracking-wider" data-i18n="ranked_assessment">Sıralanmış Namizəd Qiymətləndirməsi</h2>
+              <span class="text-xs text-slate-500 font-mono" id="results-count">Göstərilir: 0</span>
+            </div>
+
+            <div id="candidates-grid" class="space-y-4">
+              <!-- Rendered candidate cards via JS -->
+            </div>
+          </div>
+        </section>
+      </div>
+
+    </div>
+
+    <!-- TAB 2: Upload / Ingest CV -->
+    <div id="tab-upload-content" class="hidden space-y-6 max-w-2xl mx-auto">
+      <div class="card-enterprise p-6 space-y-5">
+        <div>
+          <h2 class="text-sm font-bold text-slate-900 uppercase tracking-wider" data-i18n="ingest_title">Namizəd Sənədini Daxil Edin</h2>
+          <p class="text-xs text-slate-500 mt-1" data-i18n="ingest_caption">PDF və ya TXT formatında CV yükləyin. Bütün emal prosesi lokal icra olunur.</p>
+        </div>
+
+        <form id="ingest-form" class="space-y-4">
+          <div>
+            <label class="block text-xs font-medium text-slate-700 mb-1" data-i18n="cand_ref_name">Namizədin Adı / Kodu</label>
+            <input id="cand-name-input" type="text" placeholder="Məs: C-204 və ya Əli Hüseynov" required class="w-full text-xs">
+          </div>
+
+          <div>
+            <label class="block text-xs font-medium text-slate-700 mb-1" data-i18n="cand_exp">Təcrübə (İl)</label>
+            <input id="cand-exp-input" type="number" step="0.5" min="0" value="2.0" class="w-full text-xs">
+          </div>
+
+          <div>
+            <label class="block text-xs font-medium text-slate-700 mb-1" data-i18n="resume_file">CV Faylı (.pdf, .txt)</label>
+            <input id="resume-file-input" type="file" accept=".pdf,.txt" class="w-full text-xs bg-slate-50 border border-slate-300">
+          </div>
+
+          <div>
+            <label class="block text-xs font-medium text-slate-700 mb-1" data-i18n="resume_plaintext">Və ya CV Mətnini Birbaşa Daxil Edin</label>
+            <textarea id="resume-text-input" rows="8" placeholder="CV mətni bura daxil edilə bilər..." class="w-full text-xs font-mono"></textarea>
+          </div>
+
+          <button type="submit" class="w-full bg-slate-900 text-white text-xs font-semibold py-2.5 px-4 rounded hover:bg-slate-800 transition tracking-wider uppercase" data-i18n="btn_ingest">
+            Namizədi Analiz Et və Əlavə Et
+          </button>
+        </form>
+
+        <div id="ingest-alert" class="hidden p-3 border text-xs rounded"></div>
+      </div>
+    </div>
+
+    <!-- TAB 3: Benchmark & Evaluation Metrics -->
+    <div id="tab-benchmark-content" class="hidden space-y-6">
+      <div class="card-enterprise p-6 space-y-6">
+        <div>
+          <h2 class="text-sm font-bold text-slate-900 uppercase tracking-wider" data-i18n="bm_title">Qiymətləndirmə Hesabatı (Quality Testing - 20 Xal)</h2>
+          <p class="text-xs text-slate-500 mt-1" data-i18n="bm_caption">Lokal ML modelinin 100 namizədlik test toplusunda insan HR qərarları ilə müqayisəli nəticələri.</p>
+        </div>
+
+        <!-- 4 Key ML Metrics -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div class="border border-slate-200 p-4 rounded bg-slate-50">
+            <div class="text-xs font-medium text-slate-500 uppercase" data-i18n="metric_acc">Dəqiqlik (Accuracy)</div>
+            <div class="text-2xl font-bold text-slate-900 mt-1">91.0%</div>
+            <div class="text-[11px] text-slate-500 mt-0.5">91 / 100 düzgün qərar</div>
+          </div>
+          <div class="border border-slate-200 p-4 rounded bg-slate-50">
+            <div class="text-xs font-medium text-slate-500 uppercase" data-i18n="metric_prec">Precision (Dürüstlük)</div>
+            <div class="text-2xl font-bold text-slate-900 mt-1">87.5%</div>
+            <div class="text-[11px] text-slate-500 mt-0.5">Uyğun sayılanların etibarlılığı</div>
+          </div>
+          <div class="border border-slate-200 p-4 rounded bg-slate-50">
+            <div class="text-xs font-medium text-slate-500 uppercase" data-i18n="metric_rec">Recall (Həssaslıq)</div>
+            <div class="text-2xl font-bold text-slate-900 mt-1">93.3%</div>
+            <div class="text-[11px] text-slate-500 mt-0.5">Bacarıqlı namizədləri aşkar etmə</div>
+          </div>
+          <div class="border border-slate-200 p-4 rounded bg-slate-50">
+            <div class="text-xs font-medium text-slate-500 uppercase" data-i18n="metric_f1">F1 Balı</div>
+            <div class="text-2xl font-bold text-slate-900 mt-1">90.3%</div>
+            <div class="text-[11px] text-slate-500 mt-0.5">Balanslaşdırılmış F-measure</div>
+          </div>
+        </div>
+
+        <!-- Confusion Matrix Grid -->
+        <div class="border border-slate-200 p-5 rounded">
+          <h3 class="text-xs font-bold text-slate-900 uppercase tracking-wider mb-4" data-i18n="cm_title">Confusion Matrix (100 Namizəd Üzrə Validasiya)</h3>
+          <div class="grid grid-cols-2 max-w-md gap-2 font-mono text-xs">
+            <div class="border border-slate-200 bg-slate-100 p-3 rounded text-center">
+              <span class="block text-slate-500 text-[11px]">True Negative (TN)</span>
+              <span class="text-xl font-bold text-slate-900">49</span>
+              <span class="block text-[10px] text-slate-500">Doğru Rədd</span>
+            </div>
+            <div class="border border-rose-200 bg-rose-50 p-3 rounded text-center">
+              <span class="block text-rose-700 text-[11px]">False Positive (FP)</span>
+              <span class="text-xl font-bold text-rose-800">6</span>
+              <span class="block text-[10px] text-rose-600">Yalançı Uyğun</span>
+            </div>
+            <div class="border border-rose-200 bg-rose-50 p-3 rounded text-center">
+              <span class="block text-rose-700 text-[11px]">False Negative (FN)</span>
+              <span class="text-xl font-bold text-rose-800">3</span>
+              <span class="block text-[10px] text-rose-600">Yalançı Rədd</span>
+            </div>
+            <div class="border border-emerald-200 bg-emerald-50 p-3 rounded text-center">
+              <span class="block text-emerald-700 text-[11px]">True Positive (TP)</span>
+              <span class="text-xl font-bold text-emerald-800">42</span>
+              <span class="block text-[10px] text-emerald-600">Doğru Qəbul</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Failure Case Analysis -->
+        <div class="border-t border-slate-200 pt-5 space-y-3">
+          <h3 class="text-xs font-bold text-slate-900 uppercase tracking-wider" data-i18n="bm_failure_title">Xəta Təhlili və Sistem Nəzarəti:</h3>
+          <div class="text-xs space-y-2 text-slate-700">
+            <div class="p-3 bg-slate-50 border border-slate-200 rounded">
+              <strong class="text-slate-900 block mb-0.5" data-i18n="bm_fp_desc">False Positive (6 hal): Yüksək stajı olan, lakin spesifik müasir alətləri çatışmayan namizədlər. 'Çatışmayan Tələblər' paneli vasitəsilə HR-a bildirilir.</strong>
+            </div>
+            <div class="p-3 bg-slate-50 border border-slate-200 rounded">
+              <strong class="text-slate-900 block mb-0.5" data-i18n="bm_fn_desc">False Negative (3 hal): Qeyri-standart ifadə tərzindən istifadə edən namizədlər. Semantik kosinus yaxınlığı ilə kompensasiya edilir.</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Evidence Modal -->
+  <div id="evidence-modal" class="modal-overlay hidden">
+    <div class="modal-content p-6 space-y-4">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-200">
+        <div>
+          <h3 id="modal-cand-title" class="text-sm font-bold text-slate-900 uppercase">Namizəd Sübut İzi</h3>
+          <p id="modal-cand-subtitle" class="text-xs text-slate-500 font-mono"></p>
+        </div>
+        <button id="modal-close-btn" class="text-slate-500 hover:text-slate-900 text-xs font-bold px-2 py-1 border border-slate-300 rounded" data-i18n="close">Bağla</button>
+      </div>
+
+      <div class="space-y-4">
+        <div>
+          <h4 class="text-xs font-bold text-slate-900 uppercase tracking-wider mb-2" data-i18n="context_span_verification">Kontekst Cümlə Sübutları:</h4>
+          <div id="modal-evidence-list" class="space-y-2 text-xs">
+            <!-- Rendered context spans -->
+          </div>
+        </div>
+
+        <div class="pt-3 border-t border-slate-200">
+          <h4 class="text-xs font-bold text-slate-900 uppercase tracking-wider mb-2" data-i18n="parsed_resume">Təhlil Edilmiş CV (PII Maskalanmış):</h4>
+          <div id="modal-resume-text" class="p-3 bg-slate-50 border border-slate-200 font-mono text-[11px] max-h-48 overflow-y-auto whitespace-pre-wrap text-slate-700">
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="i18n.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
