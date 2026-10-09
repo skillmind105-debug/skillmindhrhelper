@@ -7,8 +7,11 @@ import warnings
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 import pymupdf
+import importlib
 
 from evidence_engine import analyze_candidate_skills, estimate_experience_years, mask_pii
+import translations
+importlib.reload(translations)
 from translations import TRANSLATIONS
 
 warnings.filterwarnings('ignore', category=UserWarning)
@@ -280,12 +283,12 @@ with st.sidebar:
     with add_col1:
         new_skill_input = st.text_input(
             label="New Skill Input",
-            placeholder=t["add_skill_placeholder"],
+            placeholder=t.get("add_skill_placeholder", "Yeni bacarıq yazın (məs: Docker, Git, PyTorch)"),
             label_visibility="collapsed",
             key="custom_skill_text_input"
         )
     with add_col2:
-        if st.button(t["btn_add_skill"], use_container_width=True, key="btn_add_skill_action"):
+        if st.button(t.get("btn_add_skill", "Əlavə Et"), use_container_width=True, key="btn_add_skill_action"):
             cleaned_new_skill = new_skill_input.strip().lower()
             if cleaned_new_skill:
                 if cleaned_new_skill not in st.session_state.available_skills:
@@ -295,7 +298,7 @@ with st.sidebar:
 
     # Multiselect widget: compact, scrollable, enterprise-grade, fits all screens without vertical bloating
     active_skills = st.multiselect(
-        label=t["active_skills_label"],
+        label=t.get("active_skills_label", "Tələb Olunan Bacarıqlar"),
         options=st.session_state.available_skills,
         default=st.session_state.selected_skills,
         format_func=lambda x: x.upper(),
