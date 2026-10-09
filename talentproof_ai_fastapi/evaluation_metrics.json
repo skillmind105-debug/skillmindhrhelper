@@ -1,0 +1,16 @@
+{
+  "model_version": "TalentProof AI V3",
+  "accuracy": 0.6375,
+  "precision": 0.646,
+  "recall": 0.6083,
+  "f1_score": 0.6266,
+  "pr_auc": 0.6629,
+  "roc_auc": 0.6659,
+  "feature_order": [
+    "text_similarity",
+    "job_skill_coverage",
+    "cv_skill_coverage",
+    "skill_jaccard"
+  ],
+  "warning": "Prototype evaluated on weakly labeled data. Scores are not calibrated hiring probabilities."
+}
