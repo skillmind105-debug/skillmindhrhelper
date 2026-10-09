@@ -71,8 +71,8 @@ ENTERPRISE_CSS = """
     /* Security Verification Banner */
     .security-banner {
         background-color: #ffffff;
-        border: 1px solid #e2e8f0;
-        border-left: 3px solid #cbd5e1;
+        border: 1px solid #e2e8f0 !important;
+        border-left: none !important;
         padding: 12px 16px;
         border-radius: 4px;
         margin-bottom: 20px;
@@ -243,7 +243,7 @@ with header_col1:
 
 # Security Banner
 st.markdown(f"""
-<div class="security-banner">
+<div class="security-banner" style="border: 1px solid #e2e8f0 !important; border-left: none !important;">
     <strong>{t['cia_title']}</strong><br/>
     &bull; {t['cia_c']}<br/>
     &bull; {t['cia_i']}<br/>
