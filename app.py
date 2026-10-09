@@ -699,29 +699,41 @@ with tab_upload:
     st.markdown(f"#### {t['ingest_title']}")
     st.caption(t['ingest_caption'])
     
+    uploaded_doc = st.file_uploader(t["resume_file"], type=["pdf", "txt"])
+    
+    extracted = ""
+    pdf_bytes = None
+    if uploaded_doc is not None:
+        if uploaded_doc.type == "application/pdf":
+            pdf_bytes = uploaded_doc.getvalue()
+            doc = pymupdf.open(stream=pdf_bytes, filetype="pdf")
+            for page in doc:
+                extracted += page.get_text()
+            st.success(t["pdf_success"])
+        else:
+            extracted = uploaded_doc.getvalue().decode("utf-8", errors="ignore")
+
     col_u1, col_u2 = st.columns([1, 1])
-    with col_u1:
-        new_name = st.text_input(t["cand_ref_name"], value="Candidate #X")
-        new_exp = st.number_input(t["cand_exp"], min_value=0.0, max_value=25.0, value=2.0, step=0.5)
-        uploaded_doc = st.file_uploader(t["resume_file"], type=["pdf", "txt"])
-        
     with col_u2:
-        extracted = ""
-        pdf_bytes = None
-        if uploaded_doc is not None:
-            if uploaded_doc.type == "application/pdf":
-                pdf_bytes = uploaded_doc.getvalue()
-                doc = pymupdf.open(stream=pdf_bytes, filetype="pdf")
-                for page in doc:
-                    extracted += page.get_text()
-                st.success(t["pdf_success"])
-            else:
-                extracted = uploaded_doc.getvalue().decode("utf-8", errors="ignore")
-                
         resume_text_area = st.text_area(
             t["resume_plaintext"], 
             value=extracted if extracted else "Data Analyst with 2 years experience in SQL and Python. Built predictive models.",
-            height=180
+            height=180,
+            key="upload_resume_text_area"
+        )
+
+    # Auto-calculate experience from CV text
+    detected_exp = estimate_experience_years(resume_text_area)
+
+    with col_u1:
+        new_name = st.text_input(t["cand_ref_name"], value="Candidate #X")
+        new_exp = st.number_input(
+            t["cand_exp"], 
+            min_value=0.0, 
+            max_value=25.0, 
+            value=float(detected_exp), 
+            step=0.1,
+            help="CV mətnindən avtomatik aşkarlanır və ya əllə tənzimlənə bilər."
         )
         
     if st.button(t["btn_ingest"]):
