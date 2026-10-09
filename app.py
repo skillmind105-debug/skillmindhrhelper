@@ -41,78 +41,112 @@ ENTERPRISE_CSS = """
     /* System Font Stack & Clean Typography */
     html, body, [class*="css"] {
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        font-size: 15.5px;
         color: #0f172a;
     }
     
     .stApp {
         background-color: #f8fafc;
     }
+
+    /* Remove excessive default Streamlit top and bottom spacing */
+    .block-container {
+        padding-top: 1.2rem !important;
+        padding-bottom: 1.5rem !important;
+        padding-left: 2.5rem !important;
+        padding-right: 2.5rem !important;
+        max-width: 1450px !important;
+    }
+
+    /* Remove excessive empty gaps between Streamlit elements */
+    div[data-testid="stVerticalBlock"] {
+        gap: 0.5rem !important;
+    }
+    
+    div[data-testid="stVerticalBlock"] > div {
+        margin-bottom: 0px !important;
+    }
+
+    /* Clean subtle dividers with tight margin */
+    hr {
+        margin: 10px 0 14px 0 !important;
+        border-color: #e2e8f0 !important;
+    }
+
+    /* Headings aesthetics */
+    h1, h2, h3, h4, h5, h6 {
+        margin-top: 0 !important;
+        margin-bottom: 8px !important;
+        letter-spacing: -0.2px;
+    }
     
     /* Strict Corporate Header Container - Light Enterprise Mode */
     .enterprise-header {
         background-color: #ffffff;
         color: #0f172a;
-        padding: 18px 24px;
+        padding: 14px 20px;
         border-radius: 6px;
-        margin-bottom: 16px;
-        border: 1px solid #e2e8f0;
+        margin-bottom: 10px;
+        border: 1px solid #cbd5e1;
         box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
     }
     .enterprise-header-title {
-        font-size: 19px;
+        font-size: 21px;
         font-weight: 700;
         letter-spacing: -0.2px;
         margin: 0;
         color: #0f172a;
     }
     .enterprise-header-subtitle {
-        font-size: 13px;
-        color: #64748b;
-        margin: 4px 0 0 0;
+        font-size: 14px;
+        color: #334155;
+        margin: 3px 0 0 0;
     }
     
     /* Security Verification Banner */
     .security-banner {
         background-color: #ffffff;
-        border: 1px solid #e2e8f0;
+        border: 1px solid #cbd5e1;
         border-left: 3px solid #0284c7;
-        padding: 12px 16px;
+        padding: 10px 16px;
         border-radius: 4px;
-        margin-bottom: 20px;
-        font-size: 13px;
-        color: #334155;
-        line-height: 1.5;
+        margin-bottom: 12px;
+        font-size: 13.5px;
+        color: #1e293b;
+        line-height: 1.45;
     }
     
     /* KPI Card Containers */
     div[data-testid="stMetricValue"] {
-        font-size: 24px !important;
+        font-size: 27px !important;
         font-weight: 700 !important;
         color: #0f172a !important;
     }
     div[data-testid="stMetricLabel"] {
-        font-size: 11px !important;
-        font-weight: 600 !important;
-        color: #64748b !important;
+        font-size: 12.5px !important;
+        font-weight: 700 !important;
+        color: #334155 !important;
         text-transform: uppercase;
         letter-spacing: 0.5px;
     }
     
-    /* Candidate Card */
-    .candidate-card {
-        background-color: #ffffff;
-        border: 1px solid #e2e8f0;
-        border-radius: 4px;
-        padding: 16px 20px;
-        margin-bottom: 14px;
+    /* Candidate Card Native Container */
+    div[data-testid="stVerticalBlockBorderWrapper"] {
+        background-color: #ffffff !important;
+        border: 1px solid #cbd5e1 !important;
+        border-radius: 5px !important;
+        margin-bottom: 10px !important;
+        padding: 4px 6px !important;
     }
+
     /* Minimalist Borderless Delete Icon */
     .cand-delete-trigger {
         display: inline-flex !important;
         align-items: center !important;
         justify-content: center !important;
     }
-    .candidate-card:hover .cand-delete-trigger {
+    .cand-delete-trigger:hover,
+    div[data-testid="stVerticalBlockBorderWrapper"]:hover .cand-delete-trigger {
         opacity: 0.85 !important;
     }
     .cand-delete-trigger div[data-testid="stButton"],
@@ -124,16 +158,16 @@ ENTERPRISE_CSS = """
         border-color: transparent !important;
         outline: none !important;
         box-shadow: none !important;
-        color: #94a3b8 !important;
-        font-size: 13px !important;
-        font-weight: 500 !important;
+        color: #475569 !important;
+        font-size: 14px !important;
+        font-weight: 600 !important;
         padding: 0 !important;
         margin: 0 !important;
         min-height: unset !important;
         min-width: unset !important;
-        height: 18px !important;
-        width: 18px !important;
-        line-height: 18px !important;
+        height: 20px !important;
+        width: 20px !important;
+        line-height: 20px !important;
         border-radius: 2px !important;
     }
     .cand-delete-trigger button:hover,
@@ -154,7 +188,7 @@ ENTERPRISE_CSS = """
     .badge-status-pass {
         background-color: #ecfdf5;
         color: #065f46;
-        font-size: 11px;
+        font-size: 12px;
         font-weight: 700;
         padding: 4px 10px;
         border-radius: 3px;
@@ -165,7 +199,7 @@ ENTERPRISE_CSS = """
     .badge-status-fail {
         background-color: #fff1f2;
         color: #9f1239;
-        font-size: 11px;
+        font-size: 12px;
         font-weight: 700;
         padding: 4px 10px;
         border-radius: 3px;
@@ -177,24 +211,24 @@ ENTERPRISE_CSS = """
     /* Skill Badges */
     .tag-verified {
         background-color: #f0fdf4;
-        color: #166534;
-        font-size: 11px;
-        font-weight: 600;
-        padding: 2px 8px;
+        color: #14532d;
+        font-size: 12px;
+        font-weight: 700;
+        padding: 3px 9px;
         border-radius: 3px;
-        border: 1px solid #bbf7d0;
+        border: 1px solid #86efac;
         display: inline-block;
         margin-right: 4px;
         margin-bottom: 4px;
     }
     .tag-missing {
         background-color: #f8fafc;
-        color: #64748b;
-        font-size: 11px;
-        font-weight: 500;
-        padding: 2px 8px;
+        color: #334155;
+        font-size: 12px;
+        font-weight: 600;
+        padding: 3px 9px;
         border-radius: 3px;
-        border: 1px solid #cbd5e1;
+        border: 1px solid #94a3b8;
         display: inline-block;
         margin-right: 4px;
         margin-bottom: 4px;
@@ -202,36 +236,36 @@ ENTERPRISE_CSS = """
     .tag-negated {
         background-color: #fef2f2;
         color: #991b1b;
-        font-size: 11px;
-        font-weight: 600;
-        padding: 2px 8px;
+        font-size: 12px;
+        font-weight: 700;
+        padding: 3px 9px;
         border-radius: 3px;
-        border: 1px solid #fecaca;
+        border: 1px solid #fca5a5;
         display: inline-block;
         margin-right: 4px;
         margin-bottom: 4px;
     }
 
     .section-label {
-        font-size: 12px;
+        font-size: 12.5px;
         font-weight: 700;
         text-transform: uppercase;
-        color: #475569;
+        color: #1e293b;
         margin-bottom: 6px;
-        letter-spacing: 0.4px;
+        letter-spacing: 0.5px;
     }
     /* Streamlit Tabs Styling - High Contrast Visible */
     button[data-baseweb="tab"] {
-        color: #475569 !important;
-        font-weight: 600 !important;
-        font-size: 13px !important;
+        color: #334155 !important;
+        font-weight: 700 !important;
+        font-size: 14px !important;
     }
     button[data-baseweb="tab"][aria-selected="true"] {
         color: #0f172a !important;
-        border-bottom-color: #2563eb !important;
+        border-bottom-color: #1e40af !important;
     }
     div[data-baseweb="tab-highlight"] {
-        background-color: #2563eb !important;
+        background-color: #1e40af !important;
     }
 
     /* Force Dark High-Contrast Color on All Markdown and Headings */
@@ -242,7 +276,7 @@ ENTERPRISE_CSS = """
     /* Specific Metric Styles */
     div[data-testid="stMetric"] {
         background-color: #ffffff;
-        border: 1px solid #e2e8f0;
+        border: 1px solid #cbd5e1;
         border-radius: 4px;
         padding: 12px 16px;
     }
@@ -672,16 +706,14 @@ with tab_matrix:
         status_class = "badge-status-pass" if r["passed"] else "badge-status-fail"
         status_html = f'<span class="{status_class}">{status_label} ({r["score_pct"]}%)</span>'
         
-        with st.container():
-            st.markdown('<div class="candidate-card">', unsafe_allow_html=True)
-            
+        with st.container(border=True):
             # Header Row: Title & Subtitle on left, Status and compact X on right
             top_c1, top_c2 = st.columns([7.4, 2.6])
             with top_c1:
                 st.markdown(f"""
-                <div>
-                    <span style="font-size: 15px; font-weight: 700; color: #0f172a;">{r['display_name']}</span>
-                    <span style="font-size: 12px; color: #64748b; margin-left: 8px;">&bull; {r['role']}</span>
+                <div style="padding-top: 2px;">
+                    <span style="font-size: 19.5px; font-weight: 700; color: #0f172a; letter-spacing: -0.2px;">{r['display_name']}</span>
+                    <span style="font-size: 13.5px; font-weight: 500; color: #475569; margin-left: 10px;">&bull; {r['role']}</span>
                 </div>
                 """, unsafe_allow_html=True)
             with top_c2:
@@ -689,7 +721,7 @@ with tab_matrix:
                 with b_c1:
                     st.markdown(f'<div style="text-align: right; padding-top: 2px;">{status_html}</div>', unsafe_allow_html=True)
                 with b_c2:
-                    st.markdown(f'<div class="cand-delete-trigger" style="opacity: 0.15; transition: opacity 0.2s; text-align: right;">', unsafe_allow_html=True)
+                    st.markdown(f'<div class="cand-delete-trigger" style="opacity: 0.2; transition: opacity 0.2s; text-align: right;">', unsafe_allow_html=True)
                     if st.button("✕", key=f"del_cand_btn_{r['id']}", help=t.get("btn_delete_cand", "Namizədi Sil")):
                         st.session_state[f"confirm_delete_{r['id']}"] = True
                         st.rerun()
@@ -698,7 +730,7 @@ with tab_matrix:
             # Subtle Enterprise Confirmation Bar (Clean Slate/Rose Muted, Anti-Vibe-Coded)
             if st.session_state.get(f"confirm_delete_{r['id']}", False):
                 st.markdown(f"""
-                <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-left: 3px solid #9f1239; border-radius: 3px; padding: 8px 12px; margin: 8px 0; font-size: 12px; color: #334155; display: flex; align-items: center; justify-content: space-between;">
+                <div style="background-color: #f8fafc; border: 1px solid #cbd5e1; border-left: 3px solid #9f1239; border-radius: 3px; padding: 8px 12px; margin: 8px 0; font-size: 13px; color: #0f172a; display: flex; align-items: center; justify-content: space-between;">
                     <span><strong>{t['confirm_delete_q']}</strong> ({r['display_name']})</span>
                 </div>
                 """, unsafe_allow_html=True)
@@ -718,7 +750,7 @@ with tab_matrix:
                         st.rerun()
 
             st.markdown(f"""
-                <div style="display: flex; gap: 28px; font-size: 12px; color: #475569; margin: 10px 0 14px 0;">
+                <div style="display: flex; gap: 24px; font-size: 13.5px; color: #1e293b; margin: 6px 0 10px 0;">
                     <span><strong>{t['exp_label']}:</strong> {r['exp_years']} {t['years']} ({t['req_label']}: {required_exp_input} {t['years']})</span>
                     <span><strong>{t['comp_match']}:</strong> {int(r['skill_ratio']*100)}%</span>
                     <span><strong>{t['sem_align']}:</strong> {int(r['semantic_sim']*100)}%</span>
@@ -775,13 +807,12 @@ with tab_matrix:
                 if gaps:
                     comp_html += "<ul style='margin:4px 0 0 18px;padding:0;'>" + "".join(f"<li>{x}</li>" for x in gaps) + "</ul>"
 
-            box_style = "background:#f8fafc;border:1px solid #e2e8f0;border-radius:4px;padding:12px 14px;font-size:12.5px;color:#334155;line-height:1.55;"
+            box_style = "background:#f8fafc;border:1px solid #cbd5e1;border-radius:4px;padding:12px 14px;font-size:13px;color:#1e293b;line-height:1.55;"
             rc1, rc2 = st.columns([1, 1])
             with rc1:
                 st.markdown(f'<div style="{box_style}"><div class="section-label">{rat_title}</div><ul style="margin:4px 0 0 18px;padding:0;">{reasons_html}</ul></div>', unsafe_allow_html=True)
             with rc2:
                 st.markdown(f'<div style="{box_style}"><div class="section-label">{t["comparative_title"]}</div>{comp_html}</div>', unsafe_allow_html=True)
-            st.markdown("<div style='height:10px;'></div>", unsafe_allow_html=True)
 
             # Evidence Accordion: CV document image + evidence + collapsible text
             with st.expander(f"{t['audit_trail_expander']} {r['display_name']}"):
@@ -804,14 +835,12 @@ with tab_matrix:
                     st.markdown(f'<div class="section-label">{t["context_span_verification"]}</div>', unsafe_allow_html=True)
                     if r['evidence_map']:
                         for sk, ev in r['evidence_map'].items():
-                            st.markdown(f'<div style="border-left:2px solid #A7F3D0;padding:4px 10px;margin-bottom:8px;font-size:12.5px;color:#334155;"><strong>{sk.upper()}</strong><br/><span style="color:#475569;">"{_html.escape(ev)}"</span></div>', unsafe_allow_html=True)
+                            st.markdown(f'<div style="border-left:2px solid #A7F3D0;padding:4px 10px;margin-bottom:8px;font-size:13px;color:#1e293b;"><strong>{sk.upper()}</strong><br/><span style="color:#334155;">"{_html.escape(ev)}"</span></div>', unsafe_allow_html=True)
                     else:
                         st.caption(t["no_context_spans"])
 
                 if st.toggle(t["cv_text_expander"], key=f"txt_{r['id']}"):
                     st.text_area(t["parsed_resume"], value=r['resume_text'], height=260, disabled=True, key=f"ta_{r['id']}_{int(blind_screening_enabled)}")
-                
-            st.markdown("</div>", unsafe_allow_html=True)
 
 # ----------------- TAB 2: INGEST / UPLOAD -----------------
 with tab_upload:
