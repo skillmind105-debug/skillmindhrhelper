@@ -156,13 +156,19 @@ CUSTOM_CSS = """
 st.markdown(CUSTOM_CSS, unsafe_allow_html=True)
 
 # ==========================================
-# 2. LOAD TRAINED ML MODEL
+# 2. LOAD TRAINED ML MODEL & VECTORIZER
 # ==========================================
-@st.cache_resource
-def load_ml_model():
-    return joblib.load('talentproof_ml_model.pkl')
+import warnings
+warnings.filterwarnings('ignore', category=UserWarning)
 
-rf_model = load_ml_model()
+@st.cache_resource
+def load_ml_assets():
+    model = joblib.load('talentproof_ml_model.pkl')
+    vectorizer = joblib.load('tfidf_vectorizer.pkl') if os.path.exists('tfidf_vectorizer.pkl') else None
+    return model, vectorizer
+
+import os
+rf_model, tfidf_vec = load_ml_assets()
 
 # ==========================================
 # 3. HEADER & CIA TRIAD AUDIT BANNER
@@ -277,9 +283,17 @@ def evaluate_candidates(candidates_list, required_skills, req_exp):
     job_desc_synthetic = f"Looking for {job_title} with minimum {req_exp} years of experience in {', '.join(required_skills)}."
     all_texts = [job_desc_synthetic] + [c["resume_text"] for c in candidates_list]
     
-    # TF-IDF Cosine Similarity
-    tfidf = TfidfVectorizer(stop_words='english', ngram_range=(1, 2))
-    tfidf_matrix = tfidf.fit_transform(all_texts)
+    # TF-IDF Cosine Similarity (Nadirin Train Olunmuş Vektorizeri ilə)
+    if tfidf_vec is not None:
+        try:
+            tfidf_matrix = tfidf_vec.transform(all_texts)
+        except Exception:
+            tfidf_fallback = TfidfVectorizer(stop_words='english', ngram_range=(1, 2))
+            tfidf_matrix = tfidf_fallback.fit_transform(all_texts)
+    else:
+        tfidf = TfidfVectorizer(stop_words='english', ngram_range=(1, 2))
+        tfidf_matrix = tfidf.fit_transform(all_texts)
+        
     sims = cosine_similarity(tfidf_matrix[0:1], tfidf_matrix[1:]).flatten()
     
     results = []
