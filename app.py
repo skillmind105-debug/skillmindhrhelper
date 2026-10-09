@@ -108,21 +108,24 @@ ENTERPRISE_CSS = """
         position: relative;
     }
     .candidate-card:hover .cand-delete-trigger {
-        opacity: 1 !important;
+        opacity: 0.85 !important;
     }
-    .cand-delete-btn {
-        background: transparent;
-        border: none;
-        color: #94a3b8;
-        font-size: 15px;
-        cursor: pointer;
-        padding: 2px 6px;
-        border-radius: 4px;
-        transition: all 0.15s ease;
+    .cand-delete-trigger div[data-testid="stButton"] button {
+        background: transparent !important;
+        border: none !important;
+        color: #94a3b8 !important;
+        font-size: 13px !important;
+        padding: 0 !important;
+        min-height: 20px !important;
+        height: 20px !important;
+        width: 20px !important;
+        line-height: 20px !important;
+        border-radius: 3px !important;
+        box-shadow: none !important;
     }
-    .cand-delete-btn:hover {
-        color: #e11d48;
-        background-color: #ffe4e6;
+    .cand-delete-trigger div[data-testid="stButton"] button:hover {
+        color: #9f1239 !important;
+        background: #fee2e2 !important;
     }
     
     /* Professional Status Badges */
@@ -650,8 +653,8 @@ with tab_matrix:
         with st.container():
             st.markdown('<div class="candidate-card">', unsafe_allow_html=True)
             
-            # Header Row with Candidate Name, Status and Hover Delete Button
-            top_c1, top_c2, top_c3 = st.columns([7.8, 1.8, 0.4])
+            # Header Row: Title & Subtitle on left, Status and compact X on right
+            top_c1, top_c2 = st.columns([8.2, 1.8])
             with top_c1:
                 st.markdown(f"""
                 <div>
@@ -660,23 +663,24 @@ with tab_matrix:
                 </div>
                 """, unsafe_allow_html=True)
             with top_c2:
-                st.markdown(f'<div style="text-align: right;">{status_html}</div>', unsafe_allow_html=True)
-            with top_c3:
-                # Hover delete trigger button
-                st.markdown(f'<div class="cand-delete-trigger" style="opacity: 0.15; transition: opacity 0.2s; text-align: right;">', unsafe_allow_html=True)
-                if st.button("✕", key=f"del_cand_btn_{r['id']}", help=t.get("btn_delete_cand", "Namizədi Sil")):
-                    st.session_state[f"confirm_delete_{r['id']}"] = True
-                    st.rerun()
-                st.markdown('</div>', unsafe_allow_html=True)
+                b_c1, b_c2 = st.columns([8, 2])
+                with b_c1:
+                    st.markdown(f'<div style="text-align: right; padding-top: 1px;">{status_html}</div>', unsafe_allow_html=True)
+                with b_c2:
+                    st.markdown(f'<div class="cand-delete-trigger" style="opacity: 0.15; transition: opacity 0.2s; text-align: right; margin-top: -2px;">', unsafe_allow_html=True)
+                    if st.button("✕", key=f"del_cand_btn_{r['id']}", help=t.get("btn_delete_cand", "Namizədi Sil")):
+                        st.session_state[f"confirm_delete_{r['id']}"] = True
+                        st.rerun()
+                    st.markdown('</div>', unsafe_allow_html=True)
             
-            # Confirmation banner if delete clicked
+            # Subtle Enterprise Confirmation Bar (Clean Slate/Rose Muted, Anti-Vibe-Coded)
             if st.session_state.get(f"confirm_delete_{r['id']}", False):
                 st.markdown(f"""
-                <div style="background-color: #fff1f2; border: 1px solid #fecdd3; border-radius: 4px; padding: 10px 14px; margin: 8px 0 14px 0; display: flex; align-items: center; justify-content: space-between;">
-                    <span style="color: #9f1239; font-weight: 600; font-size: 13px;">{t['confirm_delete_q']} ({r['display_name']})</span>
+                <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-left: 3px solid #9f1239; border-radius: 3px; padding: 8px 12px; margin: 8px 0; font-size: 12px; color: #334155; display: flex; align-items: center; justify-content: space-between;">
+                    <span><strong>{t['confirm_delete_q']}</strong> ({r['display_name']})</span>
                 </div>
                 """, unsafe_allow_html=True)
-                conf_c1, conf_c2, conf_c3 = st.columns([2, 2, 6])
+                conf_c1, conf_c2, conf_c3 = st.columns([1.2, 1.2, 7.6])
                 with conf_c1:
                     if st.button(t['btn_confirm_yes'], key=f"yes_del_{r['id']}", use_container_width=True):
                         all_c = load_candidates()
