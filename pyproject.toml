@@ -1,2 +1,19 @@
+[project]
+name = "talentproof-ai"
+version = "1.0.0"
+description = "TalentProof AI FastAPI Core Screening Engine"
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi",
+    "uvicorn",
+    "python-multipart",
+    "pydantic",
+    "scikit-learn",
+    "pandas",
+    "numpy",
+    "joblib",
+    "pymupdf",
+]
+
 [tool.vercel]
 entrypoint = "backend.main:app"
