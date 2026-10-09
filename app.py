@@ -351,6 +351,9 @@ rf_model, tfidf_vec = load_ml_assets()
 # 5. SIDEBAR CONTROLS (WHAT-IF & SPEC)
 # ==========================================
 with st.sidebar:
+    logo_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "logo.png")
+    if os.path.exists(logo_path):
+        st.image(logo_path, width=80)
     st.markdown(f"### {t['job_spec_header']}")
     job_title = st.text_input(t['position_title'], value="Data Analyst (Middle)")
     required_exp_input = st.number_input(t['required_exp'], min_value=0.5, max_value=15.0, value=2.0, step=0.5)
