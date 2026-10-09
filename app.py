@@ -47,23 +47,23 @@ ENTERPRISE_CSS = """
     
     /* Strict Corporate Header Container */
     .enterprise-header {
-        background-color: #0f172a;
-        color: #ffffff;
+        background-color: #f1f5f9;
+        color: #0f172a;
         padding: 16px 24px;
         border-radius: 4px;
         margin-bottom: 16px;
-        border: 1px solid #1e293b;
+        border: 1px solid #cbd5e1;
     }
     .enterprise-header-title {
         font-size: 19px;
         font-weight: 700;
         letter-spacing: -0.2px;
         margin: 0;
-        color: #ffffff;
+        color: #0f172a;
     }
     .enterprise-header-subtitle {
         font-size: 13px;
-        color: #94a3b8;
+        color: #475569;
         margin: 4px 0 0 0;
     }
     
@@ -225,14 +225,14 @@ t = TRANSLATIONS[st.session_state.current_lang]
 
 with header_col1:
     st.markdown(f"""
-    <div class="enterprise-header" style="border: 1px solid #1e293b !important; border-left: 3px solid #cbd5e1 !important;">
+    <div class="enterprise-header" style="background-color: #f1f5f9 !important; border: 1px solid #cbd5e1 !important;">
         <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px;">
             <div style="flex: 1 1 300px; min-width: 0;">
-                <div class="enterprise-header-title">{t['header_title']}</div>
-                <div class="enterprise-header-subtitle">{t['header_subtitle']}</div>
+                <div class="enterprise-header-title" style="color: #0f172a !important;">{t['header_title']}</div>
+                <div class="enterprise-header-subtitle" style="color: #475569 !important;">{t['header_subtitle']}</div>
             </div>
             <div style="flex-shrink: 0;">
-                <span style="background-color: #1e293b; color: #cbd5e1; padding: 6px 12px; border-radius: 3px; font-size: 11px; font-weight: 600; border: 1px solid #475569; white-space: nowrap !important; display: inline-block; letter-spacing: 0.3px;">
+                <span style="background-color: #ffffff; color: #334155; padding: 6px 12px; border-radius: 3px; font-size: 11px; font-weight: 600; border: 1px solid #cbd5e1; white-space: nowrap !important; display: inline-block; letter-spacing: 0.3px;">
                     {t['local_badge']}
                 </span>
             </div>
