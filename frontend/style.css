@@ -41,6 +41,7 @@ body {
   background: var(--color-slate-900);
   color: #ffffff;
   border-bottom: 1px solid var(--color-slate-800);
+  border-left: 4px solid var(--color-slate-700);
 }
 
 /* Status Badges */
