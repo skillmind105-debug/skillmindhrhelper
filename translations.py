@@ -62,7 +62,12 @@ TRANSLATIONS = {
         "cm_pred_pos": "Model: Uyğundur",
         "bm_failure_title": "Xəta Təhlili və Sistem Nəzarəti:",
         "bm_fp_desc": "False Positive (6 hal): Yüksək stajı olan, lakin spesifik müasir alətləri çatışmayan namizədlər. 'Çatışmayan Tələblər' paneli vasitəsilə HR-a bildirilir.",
-        "bm_fn_desc": "False Negative (3 hal): Qeyri-standart ifadə tərzindən istifadə edən namizədlər. Semantik kosinus yaxınlığı ilə kompensasiya edilir."
+        "bm_fn_desc": "False Negative (3 hal): Qeyri-standart ifadə tərzindən istifadə edən namizədlər. Semantik kosinus yaxınlığı ilə kompensasiya edilir.",
+        "active_skills_label": "Tələb Olunan Bacarıqlar",
+        "add_skill_placeholder": "Yeni bacarıq yazın (məs: Docker, Git, PyTorch)",
+        "btn_add_skill": "Əlavə Et",
+        "skill_already_exists": "Bu bacarıq artıq siyahıda mövcuddur.",
+        "skill_added": "Bacarıq uğurla əlavə edildi."
     },
     "EN": {
         "page_title": "TalentProof AI — Enterprise Screening Intelligence",
@@ -127,7 +132,12 @@ TRANSLATIONS = {
         "cm_pred_pos": "Predicted: Qualified",
         "bm_failure_title": "Failure Case Analysis & Systemic Controls:",
         "bm_fp_desc": "False Positives (6 cases): Candidates possessing high tenure but missing specific modern analytical libraries. Addressed via Missing Requirements panel.",
-        "bm_fn_desc": "False Negatives (3 cases): Candidates utilizing non-standard phrasing. Addressed via semantic cosine similarity fallback."
+        "bm_fn_desc": "False Negatives (3 cases): Candidates utilizing non-standard phrasing. Addressed via semantic cosine similarity fallback.",
+        "active_skills_label": "Required Competencies",
+        "add_skill_placeholder": "Enter custom skill (e.g. Docker, Git, PyTorch)",
+        "btn_add_skill": "Add Skill",
+        "skill_already_exists": "Skill already exists in the profile.",
+        "skill_added": "Skill added successfully."
     },
     "RU": {
         "page_title": "TalentProof AI — Корпоративный скрининг кандидатов",
@@ -192,6 +202,11 @@ TRANSLATIONS = {
         "cm_pred_pos": "Модель: Подходит",
         "bm_failure_title": "Анализ ошибок и системный контроль:",
         "bm_fp_desc": "Ложные срабатывания (6 случаев): Кандидаты с большим стажем, но без ключевых современных библиотек. Отражаются в блоке 'Недостающие требования'.",
-        "bm_fn_desc": "Ложные пропуски (3 случая): Кандидаты с нестандартными формулировками в резюме. Компенсируются семантическим сходством."
+        "bm_fn_desc": "Ложные пропуски (3 случая): Кандидаты с нестандартными формулировками в резюме. Компенсируются семантическим сходством.",
+        "active_skills_label": "Требуемые компетенции",
+        "add_skill_placeholder": "Введите навык (напр. Docker, Git, PyTorch)",
+        "btn_add_skill": "Добавить",
+        "skill_already_exists": "Этот навык уже присутствует в списке.",
+        "skill_added": "Навык успешно добавлен."
     }
 }
