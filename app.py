@@ -105,27 +105,48 @@ ENTERPRISE_CSS = """
         border-radius: 4px;
         padding: 16px 20px;
         margin-bottom: 14px;
-        position: relative;
+    /* Minimalist Borderless Delete Icon */
+    .cand-delete-trigger {
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
     }
     .candidate-card:hover .cand-delete-trigger {
         opacity: 0.85 !important;
     }
-    .cand-delete-trigger div[data-testid="stButton"] button {
+    .cand-delete-trigger div[data-testid="stButton"],
+    .cand-delete-trigger div[data-testid="stButton"] > button,
+    .cand-delete-trigger button {
         background: transparent !important;
+        background-color: transparent !important;
         border: none !important;
+        border-color: transparent !important;
+        outline: none !important;
+        box-shadow: none !important;
         color: #94a3b8 !important;
         font-size: 13px !important;
+        font-weight: 500 !important;
         padding: 0 !important;
-        min-height: 20px !important;
-        height: 20px !important;
-        width: 20px !important;
-        line-height: 20px !important;
-        border-radius: 3px !important;
-        box-shadow: none !important;
+        margin: 0 !important;
+        min-height: unset !important;
+        min-width: unset !important;
+        height: 18px !important;
+        width: 18px !important;
+        line-height: 18px !important;
+        border-radius: 2px !important;
     }
-    .cand-delete-trigger div[data-testid="stButton"] button:hover {
+    .cand-delete-trigger button:hover,
+    .cand-delete-trigger div[data-testid="stButton"] > button:hover {
         color: #9f1239 !important;
         background: #fee2e2 !important;
+        background-color: #fee2e2 !important;
+        border: none !important;
+    }
+    .cand-delete-trigger button:focus,
+    .cand-delete-trigger button:active {
+        outline: none !important;
+        box-shadow: none !important;
+        border: none !important;
     }
     
     /* Professional Status Badges */
@@ -654,7 +675,7 @@ with tab_matrix:
             st.markdown('<div class="candidate-card">', unsafe_allow_html=True)
             
             # Header Row: Title & Subtitle on left, Status and compact X on right
-            top_c1, top_c2 = st.columns([8.2, 1.8])
+            top_c1, top_c2 = st.columns([7.4, 2.6])
             with top_c1:
                 st.markdown(f"""
                 <div>
@@ -663,11 +684,11 @@ with tab_matrix:
                 </div>
                 """, unsafe_allow_html=True)
             with top_c2:
-                b_c1, b_c2 = st.columns([8, 2])
+                b_c1, b_c2 = st.columns([8.2, 1.8])
                 with b_c1:
-                    st.markdown(f'<div style="text-align: right; padding-top: 1px;">{status_html}</div>', unsafe_allow_html=True)
+                    st.markdown(f'<div style="text-align: right; padding-top: 2px;">{status_html}</div>', unsafe_allow_html=True)
                 with b_c2:
-                    st.markdown(f'<div class="cand-delete-trigger" style="opacity: 0.15; transition: opacity 0.2s; text-align: right; margin-top: -2px;">', unsafe_allow_html=True)
+                    st.markdown(f'<div class="cand-delete-trigger" style="opacity: 0.15; transition: opacity 0.2s; text-align: right;">', unsafe_allow_html=True)
                     if st.button("✕", key=f"del_cand_btn_{r['id']}", help=t.get("btn_delete_cand", "Namizədi Sil")):
                         st.session_state[f"confirm_delete_{r['id']}"] = True
                         st.rerun()
