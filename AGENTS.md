@@ -30,7 +30,15 @@ Unlike traditional keyword-matching ATS and unlike cloud LLMs (OpenAI, Gemini), 
 
 ---
 
-## 3. Security & CIA Triad Contracts
+## 3. Strict Internationalization (i18n) Rules
+- **Languages Supported:** Azerbaijani (`AZ`), English (`EN`), Russian (`RU`).
+- **Language Switcher UI:** Must be positioned cleanly in the top navigation/header. It should display clean professional text labels (e.g. `AZ ▾`, `EN ▾`, `RU ▾`) — strictly **NO flags or flag emojis**.
+- **Translation Completeness:** Every user-facing UI text, label, metric, button, header, error message, and audit log MUST have high-quality, professional corporate translations across all 3 languages.
+- **Agent Self-Check Requirement:** When adding new UI components or text elements, any AI assistant MUST update the translation dictionary for `AZ`, `EN`, and `RU` simultaneously. Incomplete or hardcoded single-language strings are strictly forbidden.
+
+---
+
+## 4. Security & CIA Triad Contracts
 - **Confidentiality:**
   - `evidence_engine.mask_pii()` must be preserved. When Blind Screening is toggled ON, no emails, phones, URLs, or candidate names should ever be displayed in the review cards.
   - No candidate resume or profile data must be transmitted over the internet or sent to external LLMs.
@@ -42,7 +50,7 @@ Unlike traditional keyword-matching ATS and unlike cloud LLMs (OpenAI, Gemini), 
 
 ---
 
-## 4. Machine Learning & Backend Contracts
+## 5. Machine Learning & Backend Contracts
 - **Core Model Files:**
   - `talentproof_ml_model.pkl`: Pre-trained Random Forest Classifier. Expects features: `['skill_match_ratio', 'semantic_similarity', 'exp_ratio']`.
   - `tfidf_vectorizer.pkl`: Pre-trained TF-IDF vectorizer for semantic cosine similarity.
@@ -52,10 +60,10 @@ Unlike traditional keyword-matching ATS and unlike cloud LLMs (OpenAI, Gemini), 
 
 ---
 
-## 5. File Structure Reference
+## 6. File Structure Reference
 ```
 talentproof/
-├── app.py                  # Corporate Streamlit Dashboard (Clean, Zero-Emoji)
+├── app.py                  # Corporate Streamlit Dashboard (Clean, Zero-Emoji, Multi-language)
 ├── evidence_engine.py      # Core NLP, Regex Negation Engine, PII Masking, Span Extractor
 ├── backend/
 │   ├── main.py             # Enterprise FastAPI Server
