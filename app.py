@@ -10,6 +10,10 @@ import pymupdf
 import importlib
 
 from evidence_engine import analyze_candidate_skills, estimate_experience_years, mask_pii
+from evidence_engine import EMAIL_PATTERN, PHONE_PATTERN, URL_PATTERN
+import re
+import json
+import html as _html
 import translations
 importlib.reload(translations)
 from translations import TRANSLATIONS
@@ -382,6 +386,104 @@ def save_candidates(cands):
 st.session_state.candidates = load_candidates()
 
 # ==========================================
+# 6b. DOCUMENT RENDERING, PII REDACTION & RATIONALE HELPERS
+# ==========================================
+CV_ASSET_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "cv_assets")
+MAX_CV_PAGES = 3
+
+def name_variants(name: str):
+    """Case variants of the candidate's name tokens (incl. Azerbaijani dotted capital I)."""
+    if not name or name.strip().lower().startswith("candidate"):
+        return set()
+    out = set()
+    for tok in re.split(r"\s+", name.strip()):
+        tok = tok.strip("(),.")
+        if len(tok) < 3 or "#" in tok:
+            continue
+        out |= {tok, tok.upper(), tok.lower(), tok.replace("i", "İ").upper()}
+    return out
+
+def mask_name(text: str, name: str) -> str:
+    for v in sorted(name_variants(name), key=len, reverse=True):
+        text = re.sub(re.escape(v), "[REDACTED_NAME]", text, flags=re.IGNORECASE)
+    return text
+
+def render_cv_images(pdf_bytes: bytes, cand_id: str, cand_name: str) -> int:
+    """Renders CV pages to PNG locally: an original and a PII-redacted copy (Blind Screening)."""
+    os.makedirs(CV_ASSET_DIR, exist_ok=True)
+    pages = 0
+    for redacted in (False, True):
+        doc = pymupdf.open(stream=pdf_bytes, filetype="pdf")
+        for i, page in enumerate(doc):
+            if i >= MAX_CV_PAGES:
+                break
+            if redacted:
+                text = page.get_text()
+                targets = set(re.findall(EMAIL_PATTERN, text)) | set(re.findall(URL_PATTERN, text)) | set(re.findall(PHONE_PATTERN, text))
+                targets |= name_variants(cand_name)
+                for tgt in targets:
+                    if tgt and tgt.strip():
+                        for rect in page.search_for(tgt.strip()):
+                            page.add_redact_annot(rect, fill=(0.06, 0.09, 0.16))
+                for link in page.get_links():
+                    page.add_redact_annot(link["from"], fill=(0.06, 0.09, 0.16))
+                for img in page.get_images(full=True):
+                    for rect in page.get_image_rects(img[0]):
+                        page.add_redact_annot(rect, fill=(0.80, 0.84, 0.88))
+                page.apply_redactions()
+            suffix = "_redacted" if redacted else ""
+            page.get_pixmap(dpi=110).save(os.path.join(CV_ASSET_DIR, f"{cand_id}_p{i+1}{suffix}.png"))
+            pages = i + 1
+        doc.close()
+    return pages
+
+def trim_evidence(span: str, skill: str, window: int = 90) -> str:
+    """Shortens a long evidence span to a readable window around the matched skill."""
+    span = re.sub(r"\s+", " ", span).strip()
+    m = re.search(r"\b" + re.escape(skill) + r"\b", span, re.IGNORECASE)
+    if not m or len(span) <= window * 2:
+        return span
+    start, end = max(0, m.start() - window), min(len(span), m.end() + window)
+    return ("..." if start > 0 else "") + span[start:end].strip() + ("..." if end < len(span) else "")
+
+def build_decision_reasons(r, req_exp, tr):
+    reasons = []
+    n_req = len(r["verified_skills"]) + len(r["missing_skills"])
+    reasons.append(tr["r_skills"].format(v=len(r["verified_skills"]), n=n_req))
+    if r["missing_skills"]:
+        reasons.append(tr["r_missing"].format(lst=", ".join(s.upper() for s in r["missing_skills"])))
+    if r["exp_years"] >= req_exp:
+        reasons.append(tr["r_exp_ok"].format(e=r["exp_years"], r=req_exp))
+    else:
+        reasons.append(tr["r_exp_low"].format(e=r["exp_years"], r=req_exp))
+    if r["negated_skills"]:
+        reasons.append(tr["r_negated"].format(lst=", ".join(s.upper() for s in r["negated_skills"])))
+    sem = int(r["semantic_sim"] * 100)
+    reasons.append((tr["r_sem_high"] if r["semantic_sim"] >= 0.5 else tr["r_sem_low"]).format(s=sem))
+    return reasons
+
+def comparison_deltas(a, b, tr, positive=True):
+    """Lists metric differences of candidate a vs b. positive=True -> advantages, False -> gaps."""
+    items = []
+    d_score = a["score_pct"] - b["score_pct"]
+    d_skill = int(round((a["skill_ratio"] - b["skill_ratio"]) * 100))
+    d_exp = round(a["exp_years"] - b["exp_years"], 1)
+    d_sem = int(round((a["semantic_sim"] - b["semantic_sim"]) * 100))
+    sign = 1 if positive else -1
+    if d_score * sign > 0:
+        items.append(tr["d_score"].format(d=d_score))
+    if d_skill * sign > 0:
+        items.append(tr["d_skills"].format(d=d_skill))
+    if d_exp * sign > 0:
+        items.append(tr["d_exp"].format(d=d_exp))
+    if d_sem * sign > 0:
+        items.append(tr["d_sem"].format(d=d_sem))
+    unique = [s for s in (a if positive else b)["verified_skills"] if s not in (b if positive else a)["verified_skills"]]
+    if unique:
+        items.append((tr["d_unique"] if positive else tr["d_unique_other"]).format(lst=", ".join(s.upper() for s in unique)))
+    return items
+
+# ==========================================
 # 7. EVALUATION PIPELINE
 # ==========================================
 def run_evaluation(candidates_list, req_skills, req_exp):
@@ -425,6 +527,11 @@ def run_evaluation(candidates_list, req_skills, req_exp):
         cand_prefix = "Namizəd #" if st.session_state.current_lang == "AZ" else ("Кандидат #" if st.session_state.current_lang == "RU" else "Candidate #")
         disp_name = f"{cand_prefix}{c['id']}" if blind_screening_enabled else f"{c['name']} ({c['id']})"
         
+        def _protect(txt):
+            return mask_name(mask_pii(txt), c.get("name", "")) if blind_screening_enabled else txt
+
+        evidence_clean = {sk: _protect(trim_evidence(ev, sk)) for sk, ev in analysis["evidence_map"].items()}
+
         results.append({
             "id": c["id"],
             "display_name": disp_name,
@@ -438,8 +545,9 @@ def run_evaluation(candidates_list, req_skills, req_exp):
             "verified_skills": analysis["verified_skills"],
             "missing_skills": analysis["missing_skills"],
             "negated_skills": analysis["negated_skills"],
-            "evidence_map": analysis["evidence_map"],
-            "resume_text": mask_pii(c["resume_text"]) if blind_screening_enabled else c["resume_text"]
+            "evidence_map": evidence_clean,
+            "cv_pages": c.get("cv_pages", 0),
+            "resume_text": _protect(c["resume_text"])
         })
         
     results.sort(key=lambda x: x["score_pct"], reverse=True)
@@ -476,7 +584,7 @@ with tab_matrix:
     st.markdown("---")
     st.markdown(f"#### {t['ranked_assessment']}")
     
-    for r in eval_results:
+    for rank_idx, r in enumerate(eval_results):
         status_label = t["status_qualified"] if r["passed"] else t["status_disqualified"]
         status_class = "badge-status-pass" if r["passed"] else "badge-status-fail"
         status_html = f'<span class="{status_class}">{status_label} ({r["score_pct"]}%)</span>'
@@ -524,18 +632,65 @@ with tab_matrix:
                 else:
                     st.caption(t["none_negated"])
             
-            # Evidence Accordion
-            with st.expander(f"{t['audit_trail_expander']} {r['display_name']}"):
-                st.markdown(f"**{t['context_span_verification']}**")
-                if r['evidence_map']:
-                    for sk, ev in r['evidence_map'].items():
-                        st.markdown(f"- **`{sk.upper()}`**: *\"{ev}\"*")
+            # Decision Rationale & Comparative Advantage
+            reasons = build_decision_reasons(r, required_exp_input, t)
+            rat_title = t["why_qualified_title"] if r["passed"] else t["why_not_title"]
+            reasons_html = "".join(f"<li>{x}</li>" for x in reasons)
+
+            total_n = len(eval_results)
+            comp_html = f'<div style="margin-bottom:6px;">{t["c_rank"].format(rank=rank_idx + 1, total=total_n, below=total_n - rank_idx - 1)}</div>'
+            if total_n == 1:
+                comp_html += f'<div>{t["c_only"]}</div>'
+            if rank_idx + 1 < total_n:
+                nxt = eval_results[rank_idx + 1]
+                adv = comparison_deltas(r, nxt, t, positive=True)
+                comp_html += f'<div style="font-weight:600;margin-top:6px;">{t["c_vs_next"].format(name=nxt["display_name"])}</div>'
+                if adv:
+                    comp_html += "<ul style='margin:4px 0 0 18px;padding:0;'>" + "".join(f"<li>{x}</li>" for x in adv) + "</ul>"
                 else:
-                    st.caption(t["no_context_spans"])
-                
-                st.markdown("---")
-                st.markdown(f"**{t['parsed_resume']}**")
-                st.text(r['resume_text'])
+                    comp_html += f'<div>{t["c_no_adv"]}</div>'
+            if rank_idx > 0:
+                prv = eval_results[rank_idx - 1]
+                gaps = comparison_deltas(r, prv, t, positive=False)
+                comp_html += f'<div style="font-weight:600;margin-top:8px;">{t["c_vs_prev"].format(name=prv["display_name"])}</div>'
+                if gaps:
+                    comp_html += "<ul style='margin:4px 0 0 18px;padding:0;'>" + "".join(f"<li>{x}</li>" for x in gaps) + "</ul>"
+
+            box_style = "background:#f8fafc;border:1px solid #e2e8f0;border-radius:4px;padding:12px 14px;font-size:12.5px;color:#334155;line-height:1.55;"
+            rc1, rc2 = st.columns([1, 1])
+            with rc1:
+                st.markdown(f'<div style="{box_style}"><div class="section-label">{rat_title}</div><ul style="margin:4px 0 0 18px;padding:0;">{reasons_html}</ul></div>', unsafe_allow_html=True)
+            with rc2:
+                st.markdown(f'<div style="{box_style}"><div class="section-label">{t["comparative_title"]}</div>{comp_html}</div>', unsafe_allow_html=True)
+            st.markdown("<div style='height:10px;'></div>", unsafe_allow_html=True)
+
+            # Evidence Accordion: CV document image + evidence + collapsible text
+            with st.expander(f"{t['audit_trail_expander']} {r['display_name']}"):
+                doc_col, ev_col = st.columns([1, 1])
+                with doc_col:
+                    st.markdown(f'<div class="section-label">{t["cv_document"]}</div>', unsafe_allow_html=True)
+                    suffix = "_redacted" if blind_screening_enabled else ""
+                    page_paths = [os.path.join(CV_ASSET_DIR, f"{r['id']}_p{p}{suffix}.png") for p in range(1, r["cv_pages"] + 1)]
+                    page_paths = [p for p in page_paths if os.path.exists(p)]
+                    if page_paths:
+                        if blind_screening_enabled:
+                            st.caption(t["cv_redacted_note"])
+                        pg = 1
+                        if len(page_paths) > 1:
+                            pg = st.radio(t["page_label"], list(range(1, len(page_paths) + 1)), horizontal=True, key=f"pg_{r['id']}")
+                        st.image(page_paths[pg - 1], use_container_width=True)
+                    else:
+                        st.caption(t["cv_no_image"])
+                with ev_col:
+                    st.markdown(f'<div class="section-label">{t["context_span_verification"]}</div>', unsafe_allow_html=True)
+                    if r['evidence_map']:
+                        for sk, ev in r['evidence_map'].items():
+                            st.markdown(f'<div style="border-left:2px solid #A7F3D0;padding:4px 10px;margin-bottom:8px;font-size:12.5px;color:#334155;"><strong>{sk.upper()}</strong><br/><span style="color:#475569;">"{_html.escape(ev)}"</span></div>', unsafe_allow_html=True)
+                    else:
+                        st.caption(t["no_context_spans"])
+
+                if st.toggle(t["cv_text_expander"], key=f"txt_{r['id']}"):
+                    st.text_area(t["parsed_resume"], value=r['resume_text'], height=260, disabled=True, key=f"ta_{r['id']}_{int(blind_screening_enabled)}")
                 
             st.markdown("</div>", unsafe_allow_html=True)
 
@@ -552,14 +707,16 @@ with tab_upload:
         
     with col_u2:
         extracted = ""
+        pdf_bytes = None
         if uploaded_doc is not None:
             if uploaded_doc.type == "application/pdf":
-                doc = pymupdf.open(stream=uploaded_doc.read(), filetype="pdf")
+                pdf_bytes = uploaded_doc.getvalue()
+                doc = pymupdf.open(stream=pdf_bytes, filetype="pdf")
                 for page in doc:
                     extracted += page.get_text()
                 st.success(t["pdf_success"])
             else:
-                extracted = uploaded_doc.read().decode("utf-8", errors="ignore")
+                extracted = uploaded_doc.getvalue().decode("utf-8", errors="ignore")
                 
         resume_text_area = st.text_area(
             t["resume_plaintext"], 
@@ -570,11 +727,19 @@ with tab_upload:
     if st.button(t["btn_ingest"]):
         cands = load_candidates()
         existing_nums = [int(c["id"].split("-")[-1]) for c in cands if c.get("id", "").split("-")[-1].isdigit()]
+        new_id = f"CAND-{(max(existing_nums) if existing_nums else 0) + 1:02d}"
+        cv_pages = 0
+        if pdf_bytes:
+            try:
+                cv_pages = render_cv_images(pdf_bytes, new_id, new_name)
+            except Exception:
+                cv_pages = 0
         new_entry = {
-            "id": f"CAND-{(max(existing_nums) if existing_nums else 0) + 1:02d}",
+            "id": new_id,
             "name": new_name,
             "role": "Uploaded Applicant",
             "exp_years": new_exp,
+            "cv_pages": cv_pages,
             "resume_text": resume_text_area
         }
         cands.append(new_entry)
