@@ -1,1 +1,3 @@
 Hackaton testi ugurla tamamlandi!
+Bu, bağlantını yoxlamaq üçün test faylıdır.
+Tarix: 2026-10-09
