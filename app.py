@@ -293,6 +293,15 @@ with st.sidebar:
     job_title = st.text_input(t['position_title'], value="Data Analyst (Middle)")
     required_exp_input = st.number_input(t['required_exp'], min_value=0.5, max_value=15.0, value=2.0, step=0.5)
     
+    # Model Architecture Selector (Enterprise Dual-Engine: V1 Evidence vs V3 Weak-Label)
+    model_version_selected = st.selectbox(
+        "ML Model Arxitekturası",
+        options=["TalentProof V1 (Core Evidence Engine — 91.0%)", "TalentProof V3 (Experimental Matcher — 63.8%)"],
+        index=0,
+        help="V1: Hakatonun əsas sübut və inkar əsaslı modeli. V3: A/B test üçün eksperimental model."
+    )
+    is_v3 = "V3" in model_version_selected
+
     st.markdown("---")
     st.markdown(f"### {t['what_if_header']}")
     st.caption(t['what_if_caption'])
@@ -444,9 +453,36 @@ def run_evaluation(candidates_list, req_skills, req_exp):
             'exp_ratio': exp_ratio
         }])
         
-        prob = rf_model.predict_proba(X_df)[0][1]
-        score_pct = round(prob * 100, 1)
-        passed = prob >= 0.45
+        if is_v3:
+            try:
+                from talentproof_ai_fastapi.inference import model as v3_model, vectorizer as v3_vec, extract_skills as v3_extract, FEATURE_ORDER
+                c_vec = v3_vec.transform([c["resume_text"]])
+                j_vec = v3_vec.transform([job_desc])
+                v3_sim = float(c_vec.multiply(j_vec).sum())
+                c_sk = v3_extract(c["resume_text"])
+                j_sk = set([s.lower() for s in req_skills])
+                mtch = c_sk & j_sk
+                j_cov = len(mtch) / len(j_sk) if j_sk else 0.0
+                c_cov = len(mtch) / len(c_sk) if c_sk else 0.0
+                un = c_sk | j_sk
+                jacc = len(mtch) / len(un) if un else 0.0
+                feat_df = pd.DataFrame([{
+                    "text_similarity": v3_sim,
+                    "job_skill_coverage": j_cov,
+                    "cv_skill_coverage": c_cov,
+                    "skill_jaccard": jacc
+                }])[FEATURE_ORDER]
+                prob = float(v3_model.predict_proba(feat_df)[0, 1])
+                score_pct = round(prob * 100, 1)
+                passed = prob >= 0.50
+            except Exception:
+                prob = rf_model.predict_proba(X_df)[0][1]
+                score_pct = round(prob * 100, 1)
+                passed = prob >= 0.45
+        else:
+            prob = rf_model.predict_proba(X_df)[0][1]
+            score_pct = round(prob * 100, 1)
+            passed = prob >= 0.45
         
         cand_prefix = "Namizəd #" if st.session_state.current_lang == "AZ" else ("Кандидат #" if st.session_state.current_lang == "RU" else "Candidate #")
         disp_name = f"{cand_prefix}{c['id']}" if blind_screening_enabled else f"{c['name']} ({c['id']})"

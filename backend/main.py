@@ -165,3 +165,22 @@ async def parse_cv_file(file: UploadFile = File(...)):
         "estimated_experience_years": estimate_experience_years(extracted_text),
         "masked_preview": mask_pii(extracted_text[:400])
     }
+
+@app.post("/api/predict-v3")
+def predict_with_v3_model(payload: dict):
+    """
+    TalentProof AI V3 (Weakly-labeled Prototype Model) endpoint
+    Payload: {"cv_text": "...", "job_text": "..."}
+    """
+    cv_text = payload.get("cv_text", "")
+    job_text = payload.get("job_text", "")
+    if not cv_text or not job_text:
+        raise HTTPException(status_code=400, detail="cv_text and job_text are required.")
+    
+    try:
+        from talentproof_ai_fastapi.inference import predict_cv_job_match
+        result = predict_cv_job_match(cv_text, job_text)
+        return result
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
