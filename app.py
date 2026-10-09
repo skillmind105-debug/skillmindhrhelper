@@ -1,4 +1,5 @@
 # Streamlit Enterprise Dashboard (Slate Theme Updated)
+# pyrefly: ignore [missing-import]
 import streamlit as st
 import pandas as pd
 import numpy as np
@@ -181,10 +182,10 @@ ENTERPRISE_CSS = """
     }
     button[data-baseweb="tab"][aria-selected="true"] {
         color: #0f172a !important;
-        border-bottom-color: #64748b !important;
+        border-bottom-color: #2563eb !important;
     }
     div[data-baseweb="tab-highlight"] {
-        background-color: #64748b !important;
+        background-color: #2563eb !important;
     }
 
     /* Force Dark High-Contrast Color on All Markdown and Headings */
