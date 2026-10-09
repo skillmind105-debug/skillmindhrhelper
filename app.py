@@ -169,6 +169,32 @@ ENTERPRISE_CSS = """
         margin-bottom: 6px;
         letter-spacing: 0.4px;
     }
+    /* Streamlit Tabs Styling - High Contrast Visible */
+    button[data-baseweb="tab"] {
+        color: #475569 !important;
+        font-weight: 600 !important;
+        font-size: 13px !important;
+    }
+    button[data-baseweb="tab"][aria-selected="true"] {
+        color: #0f172a !important;
+        border-bottom-color: #2563eb !important;
+    }
+    div[data-baseweb="tab-highlight"] {
+        background-color: #2563eb !important;
+    }
+
+    /* Force Dark High-Contrast Color on All Markdown and Headings */
+    h1, h2, h3, h4, h5, h6, p, span, label, div {
+        color: inherit;
+    }
+
+    /* Specific Metric Styles */
+    div[data-testid="stMetric"] {
+        background-color: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 4px;
+        padding: 12px 16px;
+    }
 </style>
 """
 st.markdown(ENTERPRISE_CSS, unsafe_allow_html=True)
