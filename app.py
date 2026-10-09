@@ -105,6 +105,7 @@ ENTERPRISE_CSS = """
         border-radius: 4px;
         padding: 16px 20px;
         margin-bottom: 14px;
+    }
     /* Minimalist Borderless Delete Icon */
     .cand-delete-trigger {
         display: inline-flex !important;
