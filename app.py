@@ -273,14 +273,14 @@ with st.sidebar:
     job_title = st.text_input(t['position_title'], value="Data Analyst (Middle)")
     required_exp_input = st.number_input(t['required_exp'], min_value=0.5, max_value=15.0, value=2.0, step=0.5)
     
-    # Model Architecture Selector (Enterprise Dual-Engine: V1 Evidence vs V3 Weak-Label)
+    # Model Architecture Selector (Enterprise Dual-Engine: Core Evidence vs Advanced Deep Matcher)
     model_version_selected = st.selectbox(
-        "ML Model Arxitekturası",
-        options=["TalentProof V1 (Core Evidence Engine — 91.0%)", "TalentProof V3 (Experimental Matcher — 63.8%)"],
+        t.get("ml_model_label", "ML Model Arxitekturası"),
+        options=[t["model_core_name"], t["model_v3_name"]],
         index=0,
-        help="V1: Hakatonun əsas sübut və inkar əsaslı modeli. V3: A/B test üçün eksperimental model."
+        help=t.get("model_selector_help", "Model seçimi")
     )
-    is_v3 = "V3" in model_version_selected
+    is_v3 = model_version_selected == t["model_v3_name"]
 
     st.markdown("---")
     st.markdown(f"### {t['what_if_header']}")
