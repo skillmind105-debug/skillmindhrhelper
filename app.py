@@ -9,14 +9,21 @@ from sklearn.metrics.pairwise import cosine_similarity
 import pymupdf
 
 from evidence_engine import analyze_candidate_skills, estimate_experience_years, mask_pii
+from translations import TRANSLATIONS
 
 warnings.filterwarnings('ignore', category=UserWarning)
 
 # ==========================================
-# 1. ENTERPRISE B2B CONFIGURATION
+# 1. LANGUAGE STATE & INITIALIZATION
+# ==========================================
+if "current_lang" not in st.session_state:
+    st.session_state.current_lang = "AZ"
+
+# ==========================================
+# 2. ENTERPRISE B2B PAGE CONFIG
 # ==========================================
 st.set_page_config(
-    page_title="TalentProof AI — Enterprise Screening Intelligence",
+    page_title=TRANSLATIONS[st.session_state.current_lang]["page_title"],
     layout="wide",
     initial_sidebar_state="expanded"
 )
@@ -24,7 +31,7 @@ st.set_page_config(
 # STRICT ANTI-VIBE-CODED CSS (ZERO EMOJIS, HIGH CONTRAST, PROFESSIONAL SLATE PALETTE)
 ENTERPRISE_CSS = """
 <style>
-    /* Clean System Typography */
+    /* System Font Stack & Clean Typography */
     html, body, [class*="css"] {
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
         color: #0f172a;
@@ -34,17 +41,17 @@ ENTERPRISE_CSS = """
         background-color: #f8fafc;
     }
     
-    /* Strict Corporate Header */
+    /* Strict Corporate Header Container */
     .enterprise-header {
         background-color: #0f172a;
         color: #ffffff;
-        padding: 18px 24px;
+        padding: 16px 24px;
         border-radius: 4px;
-        margin-bottom: 20px;
+        margin-bottom: 16px;
         border-left: 4px solid #2563eb;
     }
     .enterprise-header-title {
-        font-size: 20px;
+        font-size: 19px;
         font-weight: 700;
         letter-spacing: -0.2px;
         margin: 0;
@@ -154,7 +161,6 @@ ENTERPRISE_CSS = """
         margin-bottom: 4px;
     }
 
-    /* Subheadings */
     .section-label {
         font-size: 12px;
         font-weight: 700;
@@ -168,7 +174,54 @@ ENTERPRISE_CSS = """
 st.markdown(ENTERPRISE_CSS, unsafe_allow_html=True)
 
 # ==========================================
-# 2. LOAD PRE-TRAINED ML ASSETS
+# 3. TOP NAVIGATION & PROFESSIONAL LANGUAGE SWITCHER
+# ==========================================
+header_col1, header_col2 = st.columns([8, 2])
+
+with header_col2:
+    selected_lang = st.selectbox(
+        label="Language Selector",
+        options=["AZ ▾", "EN ▾", "RU ▾"],
+        index=0 if st.session_state.current_lang == "AZ" else (1 if st.session_state.current_lang == "EN" else 2),
+        label_visibility="collapsed",
+        key="lang_selector_widget"
+    )
+    clean_code = selected_lang.split()[0]
+    if clean_code != st.session_state.current_lang:
+        st.session_state.current_lang = clean_code
+        st.rerun()
+
+t = TRANSLATIONS[st.session_state.current_lang]
+
+with header_col1:
+    st.markdown(f"""
+    <div class="enterprise-header">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div>
+                <div class="enterprise-header-title">{t['header_title']}</div>
+                <div class="enterprise-header-subtitle">{t['header_subtitle']}</div>
+            </div>
+            <div>
+                <span style="background-color: #1e293b; color: #94a3b8; padding: 4px 10px; border-radius: 3px; font-size: 11px; font-weight: 600; border: 1px solid #334155;">
+                    {t['local_badge']}
+                </span>
+            </div>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+# Security Banner
+st.markdown(f"""
+<div class="security-banner">
+    <strong>{t['cia_title']}</strong><br/>
+    &bull; {t['cia_c']}<br/>
+    &bull; {t['cia_i']}<br/>
+    &bull; {t['cia_a']}
+</div>
+""", unsafe_allow_html=True)
+
+# ==========================================
+# 4. LOAD PRE-TRAINED ML ASSETS
 # ==========================================
 @st.cache_resource
 def load_ml_assets():
@@ -179,44 +232,16 @@ def load_ml_assets():
 rf_model, tfidf_vec = load_ml_assets()
 
 # ==========================================
-# 3. HEADER & SECURITY AUDIT BANNER
-# ==========================================
-st.markdown("""
-<div class="enterprise-header">
-    <div style="display: flex; justify-content: space-between; align-items: center;">
-        <div>
-            <div class="enterprise-header-title">TALENTPROOF AI &mdash; Enterprise Screening Intelligence</div>
-            <div class="enterprise-header-subtitle">Evidence-Based, On-Premise ML Architecture for Candidate Evaluation</div>
-        </div>
-        <div>
-            <span style="background-color: #1e293b; color: #94a3b8; padding: 4px 10px; border-radius: 3px; font-size: 11px; font-weight: 600; border: 1px solid #334155;">
-                LOCAL INFERENCE &bull; 0 EXTERNAL CALLS
-            </span>
-        </div>
-    </div>
-</div>
-""", unsafe_allow_html=True)
-
-st.markdown("""
-<div class="security-banner">
-    <strong>CIA Triad Audit Status:</strong><br/>
-    &bull; <strong>Confidentiality:</strong> Zero cloud LLM transmission. Candidate PII masked via Blind Screening.<br/>
-    &bull; <strong>Integrity:</strong> Negation Engine active (e.g. <em>"no knowledge of..."</em> rejected). Decisions linked to exact evidence text spans.<br/>
-    &bull; <strong>Availability:</strong> Self-contained local ML inference (&lt;15ms per resume).
-</div>
-""", unsafe_allow_html=True)
-
-# ==========================================
-# 4. SIDEBAR CONTROLS (WHAT-IF & SPEC)
+# 5. SIDEBAR CONTROLS (WHAT-IF & SPEC)
 # ==========================================
 with st.sidebar:
-    st.markdown("### Job Specification")
-    job_title = st.text_input("Position Title", value="Data Analyst (Middle)")
-    required_exp_input = st.number_input("Required Experience (Years)", min_value=0.5, max_value=15.0, value=2.0, step=0.5)
+    st.markdown(f"### {t['job_spec_header']}")
+    job_title = st.text_input(t['position_title'], value="Data Analyst (Middle)")
+    required_exp_input = st.number_input(t['required_exp'], min_value=0.5, max_value=15.0, value=2.0, step=0.5)
     
     st.markdown("---")
-    st.markdown("### What-If Simulation")
-    st.caption("Toggle required competencies to observe real-time score recalculation:")
+    st.markdown(f"### {t['what_if_header']}")
+    st.caption(t['what_if_caption'])
     
     default_skills = ["python", "sql", "pandas", "numpy", "tableau", "power bi", "excel", "data visualization"]
     active_skills = []
@@ -226,10 +251,10 @@ with st.sidebar:
             active_skills.append(s)
             
     st.markdown("---")
-    blind_screening_enabled = st.toggle("Blind Screening (PII Masking)", value=True, help="Masks candidate names, emails, and phone numbers to eliminate evaluation bias.")
+    blind_screening_enabled = st.toggle(t['blind_screening'], value=True, help=t['blind_screening_help'])
 
 # ==========================================
-# 5. CANDIDATE REPOSITORY STATE
+# 6. CANDIDATE REPOSITORY STATE
 # ==========================================
 default_candidates = [
     {
@@ -273,7 +298,7 @@ if "candidates" not in st.session_state:
     st.session_state.candidates = default_candidates
 
 # ==========================================
-# 6. EVALUATION PIPELINE
+# 7. EVALUATION PIPELINE
 # ==========================================
 def run_evaluation(candidates_list, req_skills, req_exp):
     if not req_skills:
@@ -313,7 +338,8 @@ def run_evaluation(candidates_list, req_skills, req_exp):
         score_pct = round(prob * 100, 1)
         passed = prob >= 0.45
         
-        disp_name = f"Candidate #{c['id']}" if blind_screening_enabled else f"{c['name']} ({c['id']})"
+        cand_prefix = "Namizəd #" if st.session_state.current_lang == "AZ" else ("Кандидат #" if st.session_state.current_lang == "RU" else "Candidate #")
+        disp_name = f"{cand_prefix}{c['id']}" if blind_screening_enabled else f"{c['name']} ({c['id']})"
         
         results.append({
             "id": c["id"],
@@ -336,16 +362,16 @@ def run_evaluation(candidates_list, req_skills, req_exp):
     return results
 
 # ==========================================
-# 7. NAVIGATION TABS
+# 8. NAVIGATION TABS
 # ==========================================
-tab_dashboard, tab_upload, tab_benchmark = st.tabs([
-    "Candidate Screening Matrix", 
-    "Ingest Candidate (PDF / Text)", 
-    "Evaluation Benchmark & Metrics"
+tab_matrix, tab_upload, tab_benchmark = st.tabs([
+    t["tab_matrix"], 
+    t["tab_upload"], 
+    t["tab_benchmark"]
 ])
 
-# ----------------- TAB 1: DASHBOARD -----------------
-with tab_dashboard:
+# ----------------- TAB 1: SCREENING MATRIX -----------------
+with tab_matrix:
     eval_results = run_evaluation(st.session_state.candidates, active_skills, required_exp_input)
     
     total_cands = len(eval_results)
@@ -355,23 +381,21 @@ with tab_dashboard:
     
     col_kpi1, col_kpi2, col_kpi3, col_kpi4 = st.columns(4)
     with col_kpi1:
-        st.metric("Total Candidates", f"{total_cands}")
+        st.metric(t["total_candidates"], f"{total_cands}")
     with col_kpi2:
-        st.metric("Shortlisted", f"{passed_cands}")
+        st.metric(t["shortlisted"], f"{passed_cands}")
     with col_kpi3:
-        st.metric("Qualification Rate", f"{pass_rate}%")
+        st.metric(t["qual_rate"], f"{pass_rate}%")
     with col_kpi4:
-        st.metric("Mean Score", f"{avg_score}%")
+        st.metric(t["mean_score"], f"{avg_score}%")
         
     st.markdown("---")
-    st.markdown("#### Ranked Candidate Assessment")
+    st.markdown(f"#### {t['ranked_assessment']}")
     
     for r in eval_results:
-        status_html = (
-            f'<span class="badge-status-pass">QUALIFIED ({r["score_pct"]}%)</span>' 
-            if r["passed"] else 
-            f'<span class="badge-status-fail">DISQUALIFIED ({r["score_pct"]}%)</span>'
-        )
+        status_label = t["status_qualified"] if r["passed"] else t["status_disqualified"]
+        status_class = "badge-status-pass" if r["passed"] else "badge-status-fail"
+        status_html = f'<span class="{status_class}">{status_label} ({r["score_pct"]}%)</span>'
         
         with st.container():
             st.markdown(f"""
@@ -384,63 +408,63 @@ with tab_dashboard:
                     <div>{status_html}</div>
                 </div>
                 <div style="display: flex; gap: 28px; font-size: 12px; color: #475569; margin-bottom: 14px;">
-                    <span><strong>Experience:</strong> {r['exp_years']} yrs (Req: {required_exp_input} yrs)</span>
-                    <span><strong>Competency Match:</strong> {int(r['skill_ratio']*100)}%</span>
-                    <span><strong>Semantic Alignment:</strong> {int(r['semantic_sim']*100)}%</span>
+                    <span><strong>{t['exp_label']}:</strong> {r['exp_years']} {t['years']} ({t['req_label']}: {required_exp_input} {t['years']})</span>
+                    <span><strong>{t['comp_match']}:</strong> {int(r['skill_ratio']*100)}%</span>
+                    <span><strong>{t['sem_align']}:</strong> {int(r['semantic_sim']*100)}%</span>
                 </div>
             """, unsafe_allow_html=True)
             
             # Competency Breakdown
             c_v, c_m, c_n = st.columns([2, 1, 1])
             with c_v:
-                st.markdown('<div class="section-label">Verified Competencies</div>', unsafe_allow_html=True)
+                st.markdown(f'<div class="section-label">{t["sec_verified"]}</div>', unsafe_allow_html=True)
                 if r['verified_skills']:
                     v_html = " ".join([f'<span class="tag-verified">{s.upper()}</span>' for s in r['verified_skills']])
                     st.markdown(v_html, unsafe_allow_html=True)
                 else:
-                    st.caption("No matching skills verified.")
+                    st.caption(t["no_verified"])
                     
             with c_m:
-                st.markdown('<div class="section-label">Missing Requirements</div>', unsafe_allow_html=True)
+                st.markdown(f'<div class="section-label">{t["sec_missing"]}</div>', unsafe_allow_html=True)
                 if r['missing_skills']:
                     m_html = " ".join([f'<span class="tag-missing">{s.upper()}</span>' for s in r['missing_skills']])
                     st.markdown(m_html, unsafe_allow_html=True)
                 else:
-                    st.caption("All requirements verified.")
+                    st.caption(t["all_verified"])
                     
             with c_n:
-                st.markdown('<div class="section-label">Negated in Context</div>', unsafe_allow_html=True)
+                st.markdown(f'<div class="section-label">{t["sec_negated"]}</div>', unsafe_allow_html=True)
                 if r['negated_skills']:
                     n_html = " ".join([f'<span class="tag-negated">{s.upper()}</span>' for s in r['negated_skills']])
                     st.markdown(n_html, unsafe_allow_html=True)
                 else:
-                    st.caption("None.")
+                    st.caption(t["none_negated"])
             
             # Evidence Accordion
-            with st.expander(f"Audit Trail & Evidence Log &mdash; {r['display_name']}"):
-                st.markdown("**Context Span Verification:**")
+            with st.expander(f"{t['audit_trail_expander']} {r['display_name']}"):
+                st.markdown(f"**{t['context_span_verification']}**")
                 if r['evidence_map']:
                     for sk, ev in r['evidence_map'].items():
                         st.markdown(f"- **`{sk.upper()}`**: *\"{ev}\"*")
                 else:
-                    st.caption("No contextual spans verified.")
+                    st.caption(t["no_context_spans"])
                 
                 st.markdown("---")
-                st.markdown("**Parsed Resume (PII Masked):**")
+                st.markdown(f"**{t['parsed_resume']}**")
                 st.text(r['resume_text'])
                 
             st.markdown("</div>", unsafe_allow_html=True)
 
-# ----------------- TAB 2: UPLOAD -----------------
+# ----------------- TAB 2: INGEST / UPLOAD -----------------
 with tab_upload:
-    st.markdown("#### Ingest Candidate Document")
-    st.caption("Upload a resume in PDF or TXT format. Processing and evidence extraction execute locally.")
+    st.markdown(f"#### {t['ingest_title']}")
+    st.caption(t['ingest_caption'])
     
     col_u1, col_u2 = st.columns([1, 1])
     with col_u1:
-        new_name = st.text_input("Candidate Reference Name / ID", value="Candidate #X")
-        new_exp = st.number_input("Experience (Years)", min_value=0.0, max_value=25.0, value=2.0, step=0.5)
-        uploaded_doc = st.file_uploader("Resume File", type=["pdf", "txt"])
+        new_name = st.text_input(t["cand_ref_name"], value="Candidate #X")
+        new_exp = st.number_input(t["cand_exp"], min_value=0.0, max_value=25.0, value=2.0, step=0.5)
+        uploaded_doc = st.file_uploader(t["resume_file"], type=["pdf", "txt"])
         
     with col_u2:
         extracted = ""
@@ -449,17 +473,17 @@ with tab_upload:
                 doc = pymupdf.open(stream=uploaded_doc.read(), filetype="pdf")
                 for page in doc:
                     extracted += page.get_text()
-                st.success("PDF parsed successfully.")
+                st.success(t["pdf_success"])
             else:
                 extracted = uploaded_doc.read().decode("utf-8", errors="ignore")
                 
         resume_text_area = st.text_area(
-            "Resume Plaintext", 
+            t["resume_plaintext"], 
             value=extracted if extracted else "Data Analyst with 2 years experience in SQL and Python. Built predictive models.",
             height=180
         )
         
-    if st.button("Evaluate and Ingest Candidate"):
+    if st.button(t["btn_ingest"]):
         new_entry = {
             "id": f"CAND-0{len(st.session_state.candidates)+1}",
             "name": new_name,
@@ -468,35 +492,35 @@ with tab_upload:
             "resume_text": resume_text_area
         }
         st.session_state.candidates.append(new_entry)
-        st.success(f"{new_name} ingested. Switch to 'Candidate Screening Matrix' to inspect ranking.")
+        st.success(f"{new_name} {t['ingest_success']}")
 
 # ----------------- TAB 3: BENCHMARK -----------------
 with tab_benchmark:
-    st.markdown("#### Evaluation Benchmark (Quality Testing - 20 Points)")
-    st.caption("Independent validation of local ML model vs. HR human ground-truth on a 100-candidate test set.")
+    st.markdown(f"#### {t['bm_title']}")
+    st.caption(t['bm_caption'])
     
     bm1, bm2, bm3, bm4 = st.columns(4)
     with bm1:
-        st.metric("Accuracy", "91.0%")
+        st.metric(t["metric_acc"], "91.0%")
     with bm2:
-        st.metric("Precision", "90.2%")
+        st.metric(t["metric_prec"], "90.2%")
     with bm3:
-        st.metric("Recall", "94.8%")
+        st.metric(t["metric_rec"], "94.8%")
     with bm4:
-        st.metric("F1 Score", "92.4%")
+        st.metric(t["metric_f1"], "92.4%")
         
     st.markdown("---")
-    st.markdown("##### Confusion Matrix (100 Sample Validation)")
+    st.markdown(f"##### {t['cm_title']}")
     
     cm_data = pd.DataFrame(
         [[36, 6], [3, 55]], 
-        index=["Actual: Disqualified", "Actual: Qualified"],
-        columns=["Predicted: Disqualified", "Predicted: Qualified"]
+        index=[t["cm_actual_neg"], t["cm_actual_pos"]],
+        columns=[t["cm_pred_neg"], t["cm_pred_pos"]]
     )
     st.table(cm_data)
     
-    st.markdown("""
-    **Failure Case Analysis & Systemic Controls:**
-    - **False Positives (6 cases):** Candidates possessing high tenure but missing specific modern analytical libraries. Addressed via the **Missing Requirements** panel which flags gaps directly to HR reviewers.
-    - **False Negatives (3 cases):** Candidates utilizing non-standard phrasing. Addressed via semantic cosine similarity fallback.
+    st.markdown(f"""
+    **{t['bm_failure_title']}**
+    - **{t['bm_fp_desc']}**
+    - **{t['bm_fn_desc']}**
     """)
