@@ -96,9 +96,9 @@ TRANSLATIONS = {
         "page_label": "Səhifə",
         "cand_already_exists": "Bu namizəd artıq sistemdə mövcuddur! Eyni CV təkrar əlavə edilmədi.",
         "ml_model_label": "ML Model Arxitekturası",
-        "model_core_name": "TalentProof Core (Sübut və İnkar Əsaslı Model — 91.0% Dəqiqlik)",
-        "model_v3_name": "TalentProof Advanced (Dərin Semantik və Bacarıq Uyğunlaşdırma — Yüksək Dəqiqlik)",
-        "model_selector_help": "Model seçimi: Sübut əsaslı Core model və ya dərin semantik uyğunlaşdırma təmin edən Advanced model."
+        "model_core_name": "TalentProof Core",
+        "model_v3_name": "TalentProof Advanced (Yüksək Dəqiqlik)",
+        "model_selector_help": "Model seçimi: TalentProof Core və ya TalentProof Advanced (Yüksək Dəqiqlik)."
     },
     "EN": {
         "page_title": "TalentProof AI — Enterprise Screening Intelligence",
@@ -197,9 +197,9 @@ TRANSLATIONS = {
         "page_label": "Page",
         "cand_already_exists": "This candidate already exists in the system! Duplicate CV not added.",
         "ml_model_label": "ML Model Architecture",
-        "model_core_name": "TalentProof Core (Evidence & Negation Engine — 91.0% Accuracy)",
-        "model_v3_name": "TalentProof Advanced (Deep Semantic & Skill Coverage — High Accuracy)",
-        "model_selector_help": "Model Selection: Evidence-based Core model or deep semantic skill coverage Advanced model."
+        "model_core_name": "TalentProof Core",
+        "model_v3_name": "TalentProof Advanced (High Accuracy)",
+        "model_selector_help": "Model Selection: TalentProof Core or TalentProof Advanced (High Accuracy)."
     },
     "RU": {
         "page_title": "TalentProof AI — Корпоративный скрининг кандидатов",
@@ -298,8 +298,8 @@ TRANSLATIONS = {
         "page_label": "Страница",
         "cand_already_exists": "Этот кандидат уже существует в системе! Повторное резюме не добавлено.",
         "ml_model_label": "Архитектура ML-модели",
-        "model_core_name": "TalentProof Core (Модель доказательств и отрицаний — 91.0% Точность)",
-        "model_v3_name": "TalentProof Advanced (Глубокое семантическое покрытие — Высокая точность)",
-        "model_selector_help": "Выбор модели: базовая модель на основе доказательств Core или модель с глубоким семантическим сопоставлением Advanced."
+        "model_core_name": "TalentProof Core",
+        "model_v3_name": "TalentProof Advanced (Высокая точность)",
+        "model_selector_help": "Выбор модели: TalentProof Core или TalentProof Advanced (Высокая точность)."
     }
 }
