@@ -511,7 +511,7 @@ with tab_upload:
         
     if st.button(t["btn_ingest"]):
         new_entry = {
-            "id": f"CAND-0{len(st.session_state.candidates)+1}",
+            "id": f"CAND-{len(st.session_state.candidates)+1:02d}",
             "name": new_name,
             "role": "Uploaded Applicant",
             "exp_years": new_exp,
@@ -519,6 +519,7 @@ with tab_upload:
         }
         st.session_state.candidates.append(new_entry)
         st.success(f"{new_name} {t['ingest_success']}")
+        st.rerun()
 
 # ----------------- TAB 3: BENCHMARK -----------------
 with tab_benchmark:
