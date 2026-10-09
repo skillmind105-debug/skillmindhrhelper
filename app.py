@@ -278,27 +278,34 @@ with st.sidebar:
     if "active_skills_multiselect" not in st.session_state:
         st.session_state["active_skills_multiselect"] = list(default_skills)
 
+    def add_custom_skill_callback():
+        val = st.session_state.get("custom_skill_text_input", "").strip().lower()
+        if val:
+            if val not in st.session_state.available_skills:
+                st.session_state.available_skills.append(val)
+            current_selected = list(st.session_state.get("active_skills_multiselect", []))
+            if val not in current_selected:
+                current_selected.append(val)
+                st.session_state["active_skills_multiselect"] = current_selected
+            st.session_state["custom_skill_text_input"] = ""
+
     # Clean custom skill input row
     add_col1, add_col2 = st.columns([3, 1])
     with add_col1:
-        new_skill_input = st.text_input(
+        st.text_input(
             label="New Skill Input",
             placeholder=t.get("add_skill_placeholder", "Yeni bacarıq yazın (məs: Docker, Git, PyTorch)"),
             label_visibility="collapsed",
-            key="custom_skill_text_input"
+            key="custom_skill_text_input",
+            on_change=add_custom_skill_callback
         )
     with add_col2:
-        if st.button(t.get("btn_add_skill", "Əlavə Et"), use_container_width=True, key="btn_add_skill_action"):
-            cleaned_new_skill = new_skill_input.strip().lower()
-            if cleaned_new_skill:
-                if cleaned_new_skill not in st.session_state.available_skills:
-                    st.session_state.available_skills.append(cleaned_new_skill)
-                current_selected = list(st.session_state.get("active_skills_multiselect", []))
-                if cleaned_new_skill not in current_selected:
-                    current_selected.append(cleaned_new_skill)
-                    st.session_state["active_skills_multiselect"] = current_selected
-                st.session_state["custom_skill_text_input"] = ""
-                st.rerun()
+        st.button(
+            t.get("btn_add_skill", "Əlavə Et"), 
+            use_container_width=True, 
+            key="btn_add_skill_action",
+            on_click=add_custom_skill_callback
+        )
 
     # Multiselect widget: compact, scrollable, enterprise-grade, fits all screens without vertical bloating
     active_skills = st.multiselect(
