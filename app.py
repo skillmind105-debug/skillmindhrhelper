@@ -200,6 +200,29 @@ ENTERPRISE_CSS = """
         border-radius: 4px;
         padding: 12px 16px;
     }
+
+    /* Skill row with hover-reveal transparent delete 'x' */
+    div[data-testid="stHorizontalBlock"]:has(.delete-skill-btn) .delete-skill-btn button {
+        opacity: 0 !important;
+        background: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+        color: #94a3b8 !important;
+        padding: 0 !important;
+        font-size: 13px !important;
+        font-weight: 700 !important;
+        line-height: 1 !important;
+        min-height: 24px !important;
+        height: 24px !important;
+        transition: opacity 0.15s ease, color 0.15s ease !important;
+    }
+    div[data-testid="stHorizontalBlock"]:has(.delete-skill-btn):hover .delete-skill-btn button {
+        opacity: 0.8 !important;
+    }
+    div[data-testid="stHorizontalBlock"]:has(.delete-skill-btn) .delete-skill-btn button:hover {
+        opacity: 1 !important;
+        color: #e11d48 !important;
+    }
 </style>
 """
 st.markdown(ENTERPRISE_CSS, unsafe_allow_html=True)
@@ -309,19 +332,31 @@ with st.sidebar:
             on_click=add_custom_skill_callback
         )
 
+    def remove_skill_callback(skill_to_remove):
+        if skill_to_remove in st.session_state.available_skills:
+            st.session_state.available_skills.remove(skill_to_remove)
+        if "active_skills_set" in st.session_state:
+            st.session_state.active_skills_set.discard(skill_to_remove)
+
     # Clean Pill-based Skill Selector (Zero confusing search box, click to toggle on/off)
     st.markdown(f'<div style="font-size:12px; font-weight:600; color:#475569; margin-top:12px; margin-bottom:6px;">{t.get("active_skills_label", "TƏLƏB OLUNAN BACARIQLAR")}</div>', unsafe_allow_html=True)
     
-    # Render interactive skill toggles grid (2 columns)
+    # Render interactive skill toggles grid (2 columns) with hover-revealed delete 'x'
     skill_cols = st.columns(2)
-    for idx, sk in enumerate(st.session_state.available_skills):
+    for idx, sk in enumerate(list(st.session_state.available_skills)):
         col_target = skill_cols[idx % 2]
         is_checked = sk in st.session_state.active_skills_set
         with col_target:
-            if st.checkbox(sk.upper(), value=is_checked, key=f"pill_skill_{sk}"):
-                st.session_state.active_skills_set.add(sk)
-            else:
-                st.session_state.active_skills_set.discard(sk)
+            row_c1, row_c2 = st.columns([5, 1])
+            with row_c1:
+                if st.checkbox(sk.upper(), value=is_checked, key=f"pill_skill_{sk}"):
+                    st.session_state.active_skills_set.add(sk)
+                else:
+                    st.session_state.active_skills_set.discard(sk)
+            with row_c2:
+                st.markdown('<div class="delete-skill-btn">', unsafe_allow_html=True)
+                st.button("✕", key=f"del_sk_{sk}", on_click=remove_skill_callback, args=(sk,), help=f"{sk.upper()} bacarığını sil")
+                st.markdown('</div>', unsafe_allow_html=True)
 
     active_skills = [s for s in st.session_state.available_skills if s in st.session_state.active_skills_set]
             
